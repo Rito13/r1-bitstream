@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 mod bitbuf;
 mod nrzi;
 //mod pipeline;
