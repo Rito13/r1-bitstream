@@ -4,10 +4,10 @@ pub struct BitBuffer {
 	bits_in_last_byte: u8,
 }
 
-const BIT_BUFFER_IN_BYTE_INDEX_BIT_SIZE: u8 = 3;
-const BIT_BUFFER_IN_BYTE_INDEX_MASK: usize = (1 << BIT_BUFFER_IN_BYTE_INDEX_BIT_SIZE) - 1;
-
 impl BitBuffer {
+	const IN_BYTE_INDEX_BIT_SIZE: u8 = 3;
+	const IN_BYTE_INDEX_MASK: usize = (1 << BitBuffer::IN_BYTE_INDEX_BIT_SIZE) - 1;
+
 	pub fn from_bytes(bytes: &[u8]) -> Self {
 		BitBuffer {
 			data: bytes.to_vec(),
@@ -32,8 +32,8 @@ impl BitBuffer {
 		if self.len() <= index {
 			None
 		} else {
-			let byte = index >> BIT_BUFFER_IN_BYTE_INDEX_BIT_SIZE;
-			Some(((self.data[byte] >> (7 - (index & BIT_BUFFER_IN_BYTE_INDEX_MASK))) & 0b1) == 1) // MSB-first
+			let byte = index >> BitBuffer::IN_BYTE_INDEX_BIT_SIZE;
+			Some(((self.data[byte] >> (7 - (index & BitBuffer::IN_BYTE_INDEX_MASK))) & 0b1) == 1) // MSB-first
 		}
 	}
 
