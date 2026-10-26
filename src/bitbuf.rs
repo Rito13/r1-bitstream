@@ -51,6 +51,30 @@ impl BitBuffer {
 	}
 }
 
+pub struct BitBufferIterator<'bit_buffer> {
+	bit_buffer: &'bit_buffer BitBuffer,
+	index: usize,
+}
+
+impl Iterator for BitBufferIterator<'_> {
+	type Item = bool;
+
+	fn next(&mut self) -> Option<Self::Item> {
+		let out = self.bit_buffer.bit(self.index);
+		self.index += 1;
+		out
+	}
+}
+
+impl<'bit_buffer> IntoIterator for &'bit_buffer BitBuffer {
+	type Item = bool;
+	type IntoIter = BitBufferIterator<'bit_buffer>;
+
+	fn into_iter(self) -> Self::IntoIter {
+		BitBufferIterator { bit_buffer: self, index: 0 }
+	}
+}
+
 #[cfg(test)]
 mod tests {
 	use super::*;
