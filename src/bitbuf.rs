@@ -7,6 +7,7 @@ pub struct BitBuffer {
 impl BitBuffer {
 	const IN_BYTE_INDEX_BIT_SIZE: u8 = 3;
 	const IN_BYTE_INDEX_MASK: usize = (1 << BitBuffer::IN_BYTE_INDEX_BIT_SIZE) - 1;
+	const FIRS_BIT_INDEX: u8 = 7;
 
 	pub fn from_bytes(bytes: &[u8]) -> Self {
 		BitBuffer {
@@ -33,18 +34,18 @@ impl BitBuffer {
 			None
 		} else {
 			let byte = index >> BitBuffer::IN_BYTE_INDEX_BIT_SIZE;
-			Some(((self.data[byte] >> (7 - (index & BitBuffer::IN_BYTE_INDEX_MASK))) & 0b1) == 1) // MSB-first
+			Some(((self.data[byte] >> (BitBuffer::FIRS_BIT_INDEX - (index & BitBuffer::IN_BYTE_INDEX_MASK) as u8)) & 0b1) == 1) // MSB-first
 		}
 	}
 
 	pub fn push_bit(&mut self, bit: bool) {
 		/* MSB-first */
 		if self.bits_in_last_byte == 8 {
-			self.data.push((bit as u8) << 7);
+			self.data.push((bit as u8) << BitBuffer::FIRS_BIT_INDEX);
 			self.bits_in_last_byte = 1;
 		} else {
 			let byte = self.data.len() - 1;
-			self.data[byte] |= (bit as u8) << (7 - self.bits_in_last_byte);
+			self.data[byte] |= (bit as u8) << (BitBuffer::FIRS_BIT_INDEX - self.bits_in_last_byte);
 			self.bits_in_last_byte += 1;
 		}
 	}
