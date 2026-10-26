@@ -61,6 +61,7 @@ mod tests {
 		let bytes: [u8; 0] = [];
 		let mut bit_buffer = BitBuffer::from_bytes(&bytes);
 
+		assert!(bit_buffer.is_empty());
 		let bits_to_test = vec![true, true, true, false, false, false, true, true, false, false, true];
 
 		/* Push some bits to it. */
@@ -68,6 +69,7 @@ mod tests {
 			bit_buffer.push_bit(*bit)
 		}
 
+		assert!(!bit_buffer.is_empty());
 		assert_eq!(bit_buffer.len(), bits_to_test.len());
 
 		let returned_bytes = bit_buffer.to_bytes();
