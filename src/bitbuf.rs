@@ -22,7 +22,7 @@ impl BitBuffer {
 	}
 
 	pub fn len(&self) -> usize {
-		(self.data.len() - 1) * 8 + (self.bits_in_last_byte as usize)
+		self.data.len() * 8 + (self.bits_in_last_byte as usize) - 8
 	}
 
 	pub fn is_empty(&self) -> bool {
@@ -62,6 +62,8 @@ mod tests {
 		let mut bit_buffer = BitBuffer::from_bytes(&bytes);
 
 		assert!(bit_buffer.is_empty());
+		assert_eq!(bit_buffer.len(), 0); // Check if len correctly works for empty buffer.
+
 		let bits_to_test = vec![true, true, true, false, false, false, true, true, false, false, true];
 
 		/* Push some bits to it. */
