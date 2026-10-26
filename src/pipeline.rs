@@ -1,11 +1,13 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BitError {
-    SixOnes { at: usize },
-    TruncatedStuff { at: usize },
-    NotByteAligned { len: usize },
+	SixOnes { at: usize },
+	TruncatedStuff { at: usize },
+	NotByteAligned { len: usize },
 }
 
-impl std::fmt::Display for BitError { /* ... */ }
+impl std::fmt::Display for BitError {
+	/* ... */
+}
 impl std::error::Error for BitError {}
 
 pub fn scramble(input: &BitBuffer) -> BitBuffer;
