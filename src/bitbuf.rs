@@ -49,6 +49,15 @@ impl BitBuffer {
 			self.bits_in_last_byte += 1;
 		}
 	}
+
+	pub fn last_bit(&self) -> Option<bool> {
+		if self.len() == 0 {
+			None
+		} else {
+			let byte = self.data.len() - 1;
+			Some(((self.data[byte] >> (BitBuffer::FIRS_BIT_INDEX - (self.bits_in_last_byte - 1))) & 0b1) == 1) // MSB-first
+		}
+	}
 }
 
 pub struct BitBufferIterator<'bit_buffer> {
