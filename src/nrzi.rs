@@ -63,4 +63,32 @@ mod tests {
 			assert_eq!(output.to_bytes()[0], bytes[0], "decode({})", bytes[1]);
 		}
 	}
+
+	#[test]
+	fn encode_decode() {
+		let mut tests = [
+			BitBuffer::from_bytes(&[0x00u8, 0x55, 0x13]),
+			BitBuffer::from_bytes(&[0xFF, 0x88, 0xFF]),
+			BitBuffer::from_bytes(&[0x55, 0x33, 0x17]),
+			BitBuffer::from_bytes(&[0xAA, 0x99, 0x9A]),
+			BitBuffer::from_bytes(&[]),
+		];
+
+		tests[2].push_bit(true);
+		tests[3].push_bit(true);
+		tests[3].push_bit(false);
+
+		for input in tests {
+			let mut in_between = BitBuffer::from_bytes(&[]);
+			let mut output = BitBuffer::from_bytes(&[]);
+
+			let mut encoder = Encoder::new(&mut in_between);
+			let mut decoder = Decoder::new(&mut output);
+
+			encoder.encode(&input);
+			decoder.decode(&in_between);
+
+			assert_eq!(input, output);
+		}
+	}
 }
