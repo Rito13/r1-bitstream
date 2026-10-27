@@ -69,3 +69,32 @@ impl Decoder {
 		Decoder { ones_count: 0 }
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn table_compare() {
+		let mut expected_output_ff = BitBuffer::from_bytes(&[0xFB]);
+		expected_output_ff.push_bit(true);
+
+		let mut expected_output_7e = BitBuffer::from_bytes(&[0x7D]);
+		expected_output_7e.push_bit(false);
+
+		for [input, expected_output] in [
+			[BitBuffer::from_bytes(&[0xFF]), expected_output_ff],
+			[BitBuffer::from_bytes(&[0x7E]), expected_output_7e],
+			[BitBuffer::from_bytes(&[0x55]), BitBuffer::from_bytes(&[0x55])],
+			[BitBuffer::from_bytes(&[0x00]), BitBuffer::from_bytes(&[0x00])],
+		] {
+			let mut encoder = Encoder::new();
+			let output = encoder.encode(&input);
+			assert_eq!(output.to_bytes(), expected_output.to_bytes(), "encode() with input[0..7] == 0x{:X}", input.to_bytes()[0]);
+
+			let mut decoder = Decoder::new();
+			let output = decoder.decode(&expected_output).expect("Test value is invalid.");
+			assert_eq!(output, input, "decode() with expected_output[0..7] == 0x{:X}", expected_output.to_bytes()[0]);
+		}
+	}
+}
