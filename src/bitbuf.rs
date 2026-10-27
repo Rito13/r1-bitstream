@@ -65,6 +65,12 @@ pub struct BitBufferIterator<'bit_buffer> {
 	index: usize,
 }
 
+impl BitBufferIterator<'_> {
+	pub fn get_index_of_last_bit(&self) -> usize {
+		self.index - 1
+	}
+}
+
 impl Iterator for BitBufferIterator<'_> {
 	type Item = bool;
 
