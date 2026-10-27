@@ -122,4 +122,11 @@ mod tests {
 			assert_eq!(input, output);
 		}
 	}
+
+	#[test]
+	fn six_ones() {
+		let bit_buffer = BitBuffer::from_bytes(&[0x7E]);
+		let mut decoder = Decoder::new();
+		assert_eq!(decoder.decode(&bit_buffer), Err(BitError::SixOnes { at: 6 }));
+	}
 }
