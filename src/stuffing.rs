@@ -90,7 +90,7 @@ mod tests {
 		] {
 			let mut encoder = Encoder::new();
 			let output = encoder.encode(&input);
-			assert_eq!(output.to_bytes(), expected_output.to_bytes(), "encode() with input[0..7] == 0x{:X}", input.to_bytes()[0]);
+			assert_eq!(output, expected_output, "encode() with input[0..7] == 0x{:X}", input.to_bytes()[0]);
 
 			let mut decoder = Decoder::new();
 			let output = decoder.decode(&expected_output).expect("Test value is invalid.");
