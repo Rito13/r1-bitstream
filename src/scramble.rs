@@ -1,21 +1,39 @@
 use super::bitbuf::BitBuffer;
 
+/** Common base for Encoder and Decoder of scrambling process. */
 struct Coder {
+	/** The current state of the encoder/decoder. */
 	sr: u32,
 }
 
 impl Coder {
+	/** Mask containing all used bits from `sr`. */
 	const SR_MASK: u32 = 0x1FFFF;
+	/** Index of bit 11 in `sr`. */
 	const SR_BIT_11_INDEX: u32 = 11;
+	/** Index of bit 16 in `sr`. */
 	const SR_BIT_16_INDEX: u32 = 16;
+	/** Mask that allows to extract bit 11 from `sr`. */
 	const SR_BIT_11: u32 = 1 << Coder::SR_BIT_11_INDEX;
+	/** Mask that allows to extract bit 16 from `sr`. */
 	const SR_BIT_16: u32 = 1 << Coder::SR_BIT_16_INDEX;
 
+	/**
+	 * Calculate the value of feedback from current state of `sr`.
+	 *
+	 * __Returns:__ The calculated single bit feedback.
+	 */
 	#[inline]
 	fn feedback(&mut self) -> bool {
 		(((self.sr & Coder::SR_BIT_11) >> Coder::SR_BIT_11_INDEX) ^ ((self.sr & Coder::SR_BIT_16) >> Coder::SR_BIT_16_INDEX)) == 1
 	}
 
+	/**
+	 * Update the value of `sr` after an bit was encoded/decoded.
+	 *
+	 * __Parameters:__
+	 * * `b`: The encoded bit that was encoded or the encoded bit that was decoded.
+	 */
 	#[inline]
 	fn update_sr(&mut self, b: bool) {
 		self.sr <<= 1;
@@ -24,10 +42,21 @@ impl Coder {
 	}
 }
 
+/** Encoder of scrambling process. */
 struct Encoder(Coder);
+
+/** Decoder of scrambling process. */
 struct Decoder(Coder);
 
 impl Encoder {
+	/**
+	 * Perform the scrambling process on given bits.
+	 *
+	 * __Parameters:__
+	 * * `bits`: The bits to scramble.
+	 *
+	 * __Returns__: Scrambled bits.
+	 */
 	fn encode(&mut self, bits: &BitBuffer) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for mut b in bits {
@@ -38,12 +67,21 @@ impl Encoder {
 		output
 	}
 
+	/** Construct a new Encoder instance. */
 	fn new() -> Self {
 		Encoder(Coder { sr: 0 })
 	}
 }
 
 impl Decoder {
+	/**
+	 * Perform the descrambling process on given bits.
+	 *
+	 * __Parameters:__
+	 * * `bits`: The bits to descramble.
+	 *
+	 * __Returns__: Descrambled bits.
+	 */
 	fn decode(&mut self, bits: &BitBuffer) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {
@@ -53,6 +91,7 @@ impl Decoder {
 		output
 	}
 
+	/** Construct a new Decoder instance. */
 	fn new() -> Self {
 		Decoder(Coder { sr: 0 })
 	}
