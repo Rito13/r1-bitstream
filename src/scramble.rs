@@ -61,4 +61,25 @@ mod tests {
 		let mut encoder = Coder::new();
 		assert_eq!(encoder.encode(&bit_buffer), BitBuffer::from_bytes(&[0x31, 0x31, 0x38, 0xbf, 0x22, 0x9b, 0x8f, 0xcd, 0x02]));
 	}
+
+	#[test]
+	fn encode_decode() {
+		let tests = [
+			BitBuffer::from_bytes(&[0x00]),
+			BitBuffer::from_bytes(&[0xFF]),
+			BitBuffer::from_bytes(b"ping"),
+			BitBuffer::from_bytes(b"123456789"),
+			BitBuffer::from_bytes(&[]),
+		];
+
+		for input in tests {
+			let mut encoder = Coder::new();
+			let mut decoder = Coder::new();
+
+			let in_between = encoder.encode(&input);
+			let output = decoder.decode(&in_between);
+
+			assert_eq!(input, output);
+		}
+	}
 }
