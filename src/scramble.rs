@@ -22,28 +22,39 @@ impl Coder {
 		self.sr |= b as u32;
 		self.sr &= Coder::SR_MASK;
 	}
+}
 
+struct Encoder(Coder);
+struct Decoder(Coder);
+
+impl Encoder {
 	fn encode(&mut self, bits: &BitBuffer) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for mut b in bits {
-			b ^= self.feedback();
+			b ^= self.0.feedback();
 			output.push_bit(b);
-			self.update_sr(b);
-		}
-		output
-	}
-
-	fn decode(&mut self, bits: &BitBuffer) -> BitBuffer {
-		let mut output = BitBuffer::from_bytes(&[]);
-		for b in bits {
-			output.push_bit(b ^ self.feedback());
-			self.update_sr(b);
+			self.0.update_sr(b);
 		}
 		output
 	}
 
 	fn new() -> Self {
-		Coder { sr: 0 }
+		Encoder(Coder { sr: 0 })
+	}
+}
+
+impl Decoder {
+	fn decode(&mut self, bits: &BitBuffer) -> BitBuffer {
+		let mut output = BitBuffer::from_bytes(&[]);
+		for b in bits {
+			output.push_bit(b ^ self.0.feedback());
+			self.0.update_sr(b);
+		}
+		output
+	}
+
+	fn new() -> Self {
+		Decoder(Coder { sr: 0 })
 	}
 }
 
@@ -58,7 +69,7 @@ mod tests {
 			println!("0x{:X}", b);
 		}
 
-		let mut encoder = Coder::new();
+		let mut encoder = Encoder::new();
 		assert_eq!(encoder.encode(&bit_buffer), BitBuffer::from_bytes(&[0x31, 0x31, 0x38, 0xbf, 0x22, 0x9b, 0x8f, 0xcd, 0x02]));
 	}
 
@@ -73,8 +84,8 @@ mod tests {
 		];
 
 		for input in tests {
-			let mut encoder = Coder::new();
-			let mut decoder = Coder::new();
+			let mut encoder = Encoder::new();
+			let mut decoder = Decoder::new();
 
 			let in_between = encoder.encode(&input);
 			let output = decoder.decode(&in_between);
