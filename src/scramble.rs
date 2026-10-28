@@ -28,3 +28,18 @@ impl Encoder {
 	}
 }
 
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn encode_123456789() {
+		let bit_buffer = BitBuffer::from_bytes(b"123456789");
+		for b in bit_buffer.to_bytes() {
+			println!("0x{:X}", b);
+		}
+
+		let mut encoder = Encoder::new();
+		assert_eq!(encoder.encode(&bit_buffer), BitBuffer::from_bytes(&[0x31, 0x31, 0x38, 0xbf, 0x22, 0x9b, 0x8f, 0xcd, 0x02]));
+	}
+}
