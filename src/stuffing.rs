@@ -129,4 +129,11 @@ mod tests {
 		let mut decoder = Decoder::new();
 		assert_eq!(decoder.decode(&bit_buffer), Err(BitError::SixOnes { at: 6 }));
 	}
+
+	#[test]
+	fn truncated() {
+		let bit_buffer = BitBuffer::from_bytes(&[0x9F]);
+		let mut decoder = Decoder::new();
+		assert_eq!(decoder.decode(&bit_buffer), Err(BitError::TruncatedStuff { at: 7 }));
+	}
 }
