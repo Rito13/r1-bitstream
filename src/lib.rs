@@ -1,3 +1,5 @@
+#![forbid(unsafe_code)]
+
 #[allow(dead_code)]
 mod bitbuf;
 mod biterror;
