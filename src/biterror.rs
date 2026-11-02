@@ -17,9 +17,28 @@ pub enum BitError {
 	},
 }
 
-/*
 impl std::fmt::Display for BitError {
-	/* ... */
+	/**
+	 * Formats the BitError using the given formatter.
+	 *
+	 * __Parameters:__
+	 * * `f`: The formatter to use.
+	 *
+	 * __Returns__: Error or a success value.
+	 */
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		match self {
+			BitError::SixOnes { at } => {
+				write!(f, "Destuffing failed: six ones in a row encountered at {at}.")
+			}
+			BitError::TruncatedStuff { at } => {
+				write!(f, "Destuffing failed: buffer ended with five consecutive ones at {at}.")
+			}
+			BitError::NotByteAligned { len } => {
+				write!(f, "Decoding failed: destuffed buffer is of length {len} which is not divisible by 8.")
+			}
+		}
+	}
 }
+
 impl std::error::Error for BitError {}
-*/
