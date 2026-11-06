@@ -1,4 +1,5 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
+/** Errors risen while processing the bit buffers. */
 pub enum BitError {
 	/** Destuffing process failed after encountering six ones in a row. */
 	SixOnes {
