@@ -51,7 +51,7 @@ impl BitBuffer {
 	}
 
 	pub fn last_bit(&self) -> Option<bool> {
-		if self.len() == 0 {
+		if self.is_empty() {
 			None
 		} else {
 			let byte = self.data.len() - 1;
