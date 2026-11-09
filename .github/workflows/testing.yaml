@@ -16,7 +16,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v6
     - name: Set up rust
-      run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+      run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -y 
     - name: Run Tests
       run: cargo test
     - name: Check Formatting
