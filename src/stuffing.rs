@@ -2,15 +2,28 @@ use super::bitbuf::BitBuffer;
 use super::bitbuf::BitBufferIterator;
 use super::biterror::BitError;
 
+/** Encoder of bit stuffing process. */
 struct Encoder {
+	/** Count of consecutive ones. */
 	ones_count: u8,
 }
 
+/** Decoder of bit stuffing process. */ 
 struct Decoder {
+	/** Count of consecutive ones. */ 
 	ones_count: u8,
 }
 
 impl Encoder {
+ /**
+	 * Stuff bits in given buffer.
+	 * Inserts a zero after echo 5 consecutive ones.
+	 *
+	 * __Parameters:__
+	 * * `bits`: The bit buffer to stuff.
+	 *
+	 * __Returns:__ The buffer with bits stuffed.
+	 */
 	fn encode(&mut self, bits: &BitBuffer) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {
@@ -27,12 +40,22 @@ impl Encoder {
 		output
 	}
 
+	/** Construct a new clean encoder. */
 	fn new() -> Self {
 		Encoder { ones_count: 0 }
 	}
 }
 
 impl Decoder {
+	/**
+	 * Destuff bits in given buffer.
+	 * Removes a zero after echo 5 consecutive ones.
+	 *
+	 * __Parameters:__
+	 * * `bits`: The bit buffer with stuffed bits.
+	 *
+	 * __Returns:__ The destuffed buffer or a BitError if the given buffer is not destuffable.
+	 */ 
 	fn decode(&mut self, bits: &BitBuffer) -> Result<BitBuffer, BitError> {
 		let mut output = BitBuffer::from_bytes(&[]);
 		let mut iter: BitBufferIterator = bits.into_iter();
@@ -65,6 +88,7 @@ impl Decoder {
 		Ok(output)
 	}
 
+	/** Construct a new clean decoder. */
 	fn new() -> Self {
 		Decoder { ones_count: 0 }
 	}
