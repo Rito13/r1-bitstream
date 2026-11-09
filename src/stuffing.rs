@@ -15,7 +15,7 @@ struct Decoder {
 }
 
 impl Encoder {
- /**
+	/**
 	 * Stuff bits in given buffer.
 	 * Inserts a zero after echo 5 consecutive ones.
 	 *
