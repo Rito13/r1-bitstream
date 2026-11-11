@@ -8,9 +8,9 @@ struct Encoder {
 	ones_count: u8,
 }
 
-/** Decoder of bit stuffing process. */ 
+/** Decoder of bit stuffing process. */
 struct Decoder {
-	/** Count of consecutive ones. */ 
+	/** Count of consecutive ones. */
 	ones_count: u8,
 }
 
@@ -55,7 +55,7 @@ impl Decoder {
 	 * * `bits`: The bit buffer with stuffed bits.
 	 *
 	 * __Returns:__ The destuffed buffer or a BitError if the given buffer is not destuffable.
-	 */ 
+	 */
 	fn decode(&mut self, bits: &BitBuffer) -> Result<BitBuffer, BitError> {
 		let mut output = BitBuffer::from_bytes(&[]);
 		let mut iter: BitBufferIterator = bits.into_iter();
