@@ -107,3 +107,27 @@ pub fn decode(air: &BitBuffer) -> Result<Vec<u8>, BitError> {
 		Err(error) => Err(error),
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn empty_input() {
+		let empty_buffer = BitBuffer::from_bytes(&[]);
+		assert_eq!(encode(&[]), empty_buffer);
+		assert_eq!(decode(&empty_buffer), Ok(vec![]));
+	}
+
+	#[test]
+	fn ping() {
+		assert_eq!(decode(&encode(b"ping")), Ok(vec![b'p', b'i', b'n', b'g']));
+	}
+
+	#[test]
+	fn not_byte_aligned() {
+		let bytes = [0xFBu8, 0xEF]; // 16 bits: 5 ones, 1 zero, 5 ones, 1 zero, 4 ones
+		let buffer = scramble(&nrzi_encode(&BitBuffer::from_bytes(&bytes)));
+		assert_eq!(decode(&buffer), Err(BitError::NotByteAligned { len: 14 }));
+	}
+}
