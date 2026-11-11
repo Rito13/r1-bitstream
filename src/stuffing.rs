@@ -3,13 +3,13 @@ use super::bitbuf::BitBufferIterator;
 use super::biterror::BitError;
 
 /** Encoder of bit stuffing process. */
-struct Encoder {
+pub struct Encoder {
 	/** Count of consecutive ones. */
 	ones_count: u8,
 }
 
 /** Decoder of bit stuffing process. */
-struct Decoder {
+pub struct Decoder {
 	/** Count of consecutive ones. */
 	ones_count: u8,
 }
@@ -24,7 +24,7 @@ impl Encoder {
 	 *
 	 * __Returns:__ The buffer with bits stuffed.
 	 */
-	fn encode(&mut self, bits: &BitBuffer) -> BitBuffer {
+	pub fn encode(&mut self, bits: &BitBuffer) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {
 			output.push_bit(b);
@@ -41,7 +41,7 @@ impl Encoder {
 	}
 
 	/** Construct a new clean encoder. */
-	fn new() -> Self {
+	pub fn new() -> Self {
 		Encoder { ones_count: 0 }
 	}
 }
@@ -56,7 +56,7 @@ impl Decoder {
 	 *
 	 * __Returns:__ The destuffed buffer or a BitError if the given buffer is not destuffable.
 	 */
-	fn decode(&mut self, bits: &BitBuffer) -> Result<BitBuffer, BitError> {
+	pub fn decode(&mut self, bits: &BitBuffer) -> Result<BitBuffer, BitError> {
 		let mut output = BitBuffer::from_bytes(&[]);
 		let mut iter: BitBufferIterator = bits.into_iter();
 		loop {
@@ -89,7 +89,7 @@ impl Decoder {
 	}
 
 	/** Construct a new clean decoder. */
-	fn new() -> Self {
+	pub fn new() -> Self {
 		Decoder { ones_count: 0 }
 	}
 }

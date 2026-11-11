@@ -43,10 +43,10 @@ impl Coder {
 }
 
 /** Encoder of scrambling process. */
-struct Encoder(Coder);
+pub struct Encoder(Coder);
 
 /** Decoder of scrambling process. */
-struct Decoder(Coder);
+pub struct Decoder(Coder);
 
 impl Encoder {
 	/**
@@ -57,7 +57,7 @@ impl Encoder {
 	 *
 	 * __Returns__: Scrambled bits.
 	 */
-	fn encode(&mut self, bits: &BitBuffer) -> BitBuffer {
+	pub fn encode(&mut self, bits: &BitBuffer) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for mut b in bits {
 			b ^= self.0.feedback();
@@ -68,7 +68,7 @@ impl Encoder {
 	}
 
 	/** Construct a new Encoder instance. */
-	fn new() -> Self {
+	pub fn new() -> Self {
 		Encoder(Coder { sr: 0 })
 	}
 }
@@ -82,7 +82,7 @@ impl Decoder {
 	 *
 	 * __Returns__: Descrambled bits.
 	 */
-	fn decode(&mut self, bits: &BitBuffer) -> BitBuffer {
+	pub fn decode(&mut self, bits: &BitBuffer) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {
 			output.push_bit(b ^ self.0.feedback());
@@ -92,7 +92,7 @@ impl Decoder {
 	}
 
 	/** Construct a new Decoder instance. */
-	fn new() -> Self {
+	pub fn new() -> Self {
 		Decoder(Coder { sr: 0 })
 	}
 }

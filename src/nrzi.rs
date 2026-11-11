@@ -1,13 +1,13 @@
 use super::bitbuf::BitBuffer;
 
 /** Encoder of NRZI process. */
-struct Encoder {
+pub struct Encoder {
 	/** The latest encoded level. Can be either high or low. */
 	current_level: bool,
 }
 
 /** Decoder of NRZI process. */
-struct Decoder {
+pub struct Decoder {
 	/** The latest decoded level. Can be either high or low. */
 	current_level: bool,
 }
@@ -22,7 +22,7 @@ impl Encoder {
 	 *
 	 * __Returns:__ The buffer with bits coded by NRZI.
 	 */
-	fn encode(&mut self, bits: &BitBuffer) -> BitBuffer {
+	pub fn encode(&mut self, bits: &BitBuffer) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {
 			self.current_level ^= !b; // XOR will flip the value if !b == 1.
@@ -32,7 +32,7 @@ impl Encoder {
 	}
 
 	/** Construct a new Encoder instance. */
-	fn new() -> Self {
+	pub fn new() -> Self {
 		Encoder { current_level: true }
 	}
 }
@@ -47,7 +47,7 @@ impl Decoder {
 	 *
 	 * __Returns:__ The buffer containing decoded data.
 	 */
-	fn decode(&mut self, bits: &BitBuffer) -> BitBuffer {
+	pub fn decode(&mut self, bits: &BitBuffer) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {
 			output.push_bit(b == self.current_level);
@@ -57,7 +57,7 @@ impl Decoder {
 	}
 
 	/** Construct a new Decoder instance. */
-	fn new() -> Self {
+	pub fn new() -> Self {
 		Decoder { current_level: true }
 	}
 }
