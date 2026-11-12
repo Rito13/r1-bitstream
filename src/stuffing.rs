@@ -2,17 +2,26 @@ use super::bitbuf::BitBuffer;
 use super::bitbuf::BitBufferIterator;
 use super::biterror::BitError;
 
-/** Encoder of bit stuffing process. */
-pub struct Encoder {
+/** Common base for Encoder and Decoder of bit stuffing process. */
+struct Coder {
 	/** Count of consecutive ones. */
 	ones_count: u8,
 }
 
-/** Decoder of bit stuffing process. */
-pub struct Decoder {
-	/** Count of consecutive ones. */
-	ones_count: u8,
+impl Default for Coder {
+	/** Construct a new clean instance of Coder. */
+	fn default() -> Self {
+		Coder { ones_count: 0 }
+	}
 }
+
+/** Encoder of bit stuffing process. */
+#[derive(Default)]
+pub struct Encoder(Coder);
+
+/** Decoder of bit stuffing process. */
+#[derive(Default)]
+pub struct Decoder(Coder);
 
 impl Encoder {
 	///Stuff bits in given buffer.
@@ -27,20 +36,20 @@ impl Encoder {
 		for b in bits {
 			output.push_bit(b);
 			if b {
-				self.ones_count += 1;
-				if self.ones_count < 5 {
+				self.0.ones_count += 1;
+				if self.0.ones_count < 5 {
 					continue;
 				}
 				output.push_bit(false);
 			}
-			self.ones_count = 0;
+			self.0.ones_count = 0;
 		}
 		output
 	}
 
 	/** Construct a new clean encoder. */
 	pub fn new() -> Self {
-		Encoder { ones_count: 0 }
+		Default::default()
 	}
 }
 
@@ -62,23 +71,23 @@ impl Decoder {
 					break;
 				}
 				Some(b) => {
-					if self.ones_count == 5 {
+					if self.0.ones_count == 5 {
 						if b {
 							return Err(BitError::SixOnes { at: iter.get_index_of_last_bit() });
 						}
-						self.ones_count = 0;
+						self.0.ones_count = 0;
 						continue;
 					}
 
 					/* Multiplying by 1 or adding 0 do not change the value.
 					 * By observing that fact we can omit branching and therefore boost performance. */
-					self.ones_count = self.ones_count * (b as u8) + (b as u8);
+					self.0.ones_count = self.0.ones_count * (b as u8) + (b as u8);
 
 					output.push_bit(b);
 				}
 			}
 		}
-		if self.ones_count == 5 {
+		if self.0.ones_count == 5 {
 			return Err(BitError::TruncatedStuff { at: bits.len() - 1 });
 		}
 		Ok(output)
@@ -86,7 +95,7 @@ impl Decoder {
 
 	/** Construct a new clean decoder. */
 	pub fn new() -> Self {
-		Decoder { ones_count: 0 }
+		Default::default()
 	}
 }
 

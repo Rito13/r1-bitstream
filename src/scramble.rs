@@ -38,10 +38,19 @@ impl Coder {
 	}
 }
 
+impl Default for Coder {
+	/** Construct new Coder instance with a default state. */
+	fn default() -> Self {
+		Coder { sr: 0 }
+	}
+}
+
 /** Encoder of scrambling process. */
+#[derive(Default)]
 pub struct Encoder(Coder);
 
 /** Decoder of scrambling process. */
+#[derive(Default)]
 pub struct Decoder(Coder);
 
 impl Encoder {
@@ -63,7 +72,7 @@ impl Encoder {
 
 	/** Construct a new Encoder instance. */
 	pub fn new() -> Self {
-		Encoder(Coder { sr: 0 })
+		Default::default()
 	}
 }
 
@@ -85,7 +94,7 @@ impl Decoder {
 
 	/** Construct a new Decoder instance. */
 	pub fn new() -> Self {
-		Decoder(Coder { sr: 0 })
+		Default::default()
 	}
 }
 
