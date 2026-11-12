@@ -10,10 +10,10 @@ fn test() {
 	let mut is_second = false;
 
 	for c in contents {
-		let value = if c <= '9' && c >= '0' {
-			c as u8 - '0' as u8
-		} else if c <= 'f' && c >= 'a' {
-			c as u8 - 'a' as u8 + 10
+		let value = if c.is_ascii_digit() {
+			c as u8 - b'0'
+		} else if ('a'..='f').contains(&c) {
+			c as u8 - b'a' + 10
 		} else if c == '\n' {
 			break;
 		} else {
