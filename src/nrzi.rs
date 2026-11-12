@@ -1,27 +1,25 @@
 use super::bitbuf::BitBuffer;
 
-/** Encoder of NRZI process. */
-pub struct Encoder {
-	/** The latest encoded level. Can be either high or low. */
+/** Common base of en/decoder of NRZI process. */
+struct Coder {
+	/** The latest encoded or decoded level. Can be either high or low. */
 	current_level: bool,
 }
 
-/** Decoder of NRZI process. */
-pub struct Decoder {
-	/** The latest decoded level. Can be either high or low. */
-	current_level: bool,
-}
-
-pub trait WithNew {
-	fn new() -> Self;	
-}
-
-impl Default for dyn WithNew {
-	/// The default constructor.
+impl Default for Coder {
+	/** Construct a new Coder instance with default state. */
 	fn default() -> Self {
-		Self::new()
+		Coder { current_level: true }
 	}
 }
+
+/** Encoder of NRZI process. */
+#[derive(Default)]
+pub struct Encoder(Coder);
+
+/** Decoder of NRZI process. */
+#[derive(Default)]
+pub struct Decoder(Coder);
 
 impl Encoder {
 	///Serialize bits from buffer into Non-return-to-zero inverted code.
@@ -34,17 +32,15 @@ impl Encoder {
 	pub fn encode(&mut self, bits: &BitBuffer) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {
-			self.current_level ^= !b; // XOR will flip the value if !b == 1.
-			output.push_bit(self.current_level);
+			self.0.current_level ^= !b; // XOR will flip the value if !b == 1.
+			output.push_bit(self.0.current_level);
 		}
 		output
 	}
-}
 
-impl WithNew for Encoder {
-	/** Construct a new Encoder instance. */
+	/** Construct a new Encoder instance with default state. */
 	pub fn new() -> Self {
-		Encoder { current_level: true }
+		Default::default()
 	}
 }
 
@@ -59,17 +55,15 @@ impl Decoder {
 	pub fn decode(&mut self, bits: &BitBuffer) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {
-			output.push_bit(b == self.current_level);
-			self.current_level = b;
+			output.push_bit(b == self.0.current_level);
+			self.0.current_level = b;
 		}
 		output
 	}
-}
 
-impl WithNew for Decoder {
-	/** Construct a new Decoder instance. */
+	/** Construct a new Decoder instance with default state. */
 	pub fn new() -> Self {
-		Decoder { current_level: true }
+		Default::default()
 	}
 }
 
