@@ -21,3 +21,5 @@ jobs:
       run: cargo test
     - name: Check Formatting
       run: cargo fmt --check
+    - name: Check Build Errors and Warnings
+      run: cargo clippy --all-targets -- -D warnings
