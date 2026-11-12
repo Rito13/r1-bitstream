@@ -12,18 +12,18 @@ pub struct Decoder {
 	current_level: bool,
 }
 
-trait WithNew {
+pub trait WithNew {
 	fn new() -> Self;	
 }
 
-impl Default for WithNew {
+impl Default for dyn WithNew {
 	/// The default constructor.
 	fn default() -> Self {
 		Self::new()
 	}
 }
 
-impl WithNew for Encoder {
+impl Encoder {
 	///Serialize bits from buffer into Non-return-to-zero inverted code.
 	///Zero is coded by difference in levels and one by constant state.
 	///
@@ -39,14 +39,16 @@ impl WithNew for Encoder {
 		}
 		output
 	}
+}
 
+impl WithNew for Encoder {
 	/** Construct a new Encoder instance. */
 	pub fn new() -> Self {
 		Encoder { current_level: true }
 	}
 }
 
-impl WithNew for Decoder {
+impl Decoder {
 	///Deserialize bits from buffer coded with Non-return-to-zero inverted.
 	///Difference in levels is decoded to zero and constant state into one.
 	///
@@ -62,7 +64,9 @@ impl WithNew for Decoder {
 		}
 		output
 	}
+}
 
+impl WithNew for Decoder {
 	/** Construct a new Decoder instance. */
 	pub fn new() -> Self {
 		Decoder { current_level: true }
