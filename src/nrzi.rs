@@ -13,15 +13,13 @@ pub struct Decoder {
 }
 
 impl Encoder {
-	/**
-	 * Serialize bits from buffer into Non-return-to-zero inverted code.
-	 * Zero is coded by difference in levels and one by constant state.
-	 *
-	 * __Parameters:__
-	 * * `bits`: The bit buffer to serialize.
-	 *
-	 * __Returns:__ The buffer with bits coded by NRZI.
-	 */
+	///Serialize bits from buffer into Non-return-to-zero inverted code.
+	///Zero is coded by difference in levels and one by constant state.
+	///
+	///__Parameters:__
+	///* `bits`: The bit buffer to serialize.
+	///
+	///__Returns:__ The buffer with bits coded by NRZI.
 	pub fn encode(&mut self, bits: &BitBuffer) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {
@@ -38,15 +36,13 @@ impl Encoder {
 }
 
 impl Decoder {
-	/**
-	 * Deserialize bits from buffer coded with Non-return-to-zero inverted.
-	 * Difference in levels is decoded to zero and constant state into one.
-	 *
-	 * __Parameters:__
-	 * * `bits`: The bit buffer to deserialize.
-	 *
-	 * __Returns:__ The buffer containing decoded data.
-	 */
+	///Deserialize bits from buffer coded with Non-return-to-zero inverted.
+	///Difference in levels is decoded to zero and constant state into one.
+	///
+	///__Parameters:__
+	///* `bits`: The bit buffer to deserialize.
+	///
+	///__Returns:__ The buffer containing decoded data.
 	pub fn decode(&mut self, bits: &BitBuffer) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {

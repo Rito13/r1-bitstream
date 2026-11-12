@@ -15,15 +15,13 @@ pub struct Decoder {
 }
 
 impl Encoder {
-	/**
-	 * Stuff bits in given buffer.
-	 * Inserts a zero after echo 5 consecutive ones.
-	 *
-	 * __Parameters:__
-	 * * `bits`: The bit buffer to stuff.
-	 *
-	 * __Returns:__ The buffer with bits stuffed.
-	 */
+	///Stuff bits in given buffer.
+	///Inserts a zero after echo 5 consecutive ones.
+	///
+	///__Parameters:__
+	///* `bits`: The bit buffer to stuff.
+	///
+	///__Returns:__ The buffer with bits stuffed.
 	pub fn encode(&mut self, bits: &BitBuffer) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {
@@ -47,15 +45,13 @@ impl Encoder {
 }
 
 impl Decoder {
-	/**
-	 * Destuff bits in given buffer.
-	 * Removes a zero after echo 5 consecutive ones.
-	 *
-	 * __Parameters:__
-	 * * `bits`: The bit buffer with stuffed bits.
-	 *
-	 * __Returns:__ The destuffed buffer or a BitError if the given buffer is not destuffable.
-	 */
+	///Destuff bits in given buffer.
+	///Removes a zero after echo 5 consecutive ones.
+	///
+	///__Parameters:__
+	///* `bits`: The bit buffer with stuffed bits.
+	///
+	///__Returns:__ The destuffed buffer or a BitError if the given buffer is not destuffable.
 	pub fn decode(&mut self, bits: &BitBuffer) -> Result<BitBuffer, BitError> {
 		let mut output = BitBuffer::from_bytes(&[]);
 		let mut iter: BitBufferIterator = bits.into_iter();
