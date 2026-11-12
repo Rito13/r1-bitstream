@@ -1,13 +1,13 @@
 #![forbid(unsafe_code)]
 
 #[allow(dead_code)]
-mod bitbuf;
-mod biterror;
+pub mod bitbuf;
+pub mod biterror;
 #[allow(dead_code)]
-mod nrzi;
+pub mod nrzi;
 #[allow(dead_code)]
-mod pipeline;
+pub mod pipeline;
 #[allow(dead_code)]
-mod scramble;
+pub mod scramble;
 #[allow(dead_code)]
-mod stuffing;
+pub mod stuffing;
