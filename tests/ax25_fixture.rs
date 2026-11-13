@@ -1,10 +1,15 @@
 use r1_bitstream::pipeline;
+use r1_bitstream::bitbuf::BitBuffer;
 use std::fs;
 
-#[test]
-fn test() {
-	let read_sting = fs::read_to_string("./fixtures//ax25_frame.hex").expect("Should have been able to read the file");
-	let contents = read_sting.chars();
+/// Parse string with hex representation of bytes.
+///
+/// __Parameters:__
+/// * 'string': The string to parse.
+///
+/// __Returns:__ Vector with parsed bytes.
+fn parse_hex_string(string: String) -> Vec<u8> {
+	let contents = string.chars();
 
 	let mut payload: Vec<u8> = vec![];
 	let mut is_second = false;
@@ -30,5 +35,37 @@ fn test() {
 		is_second = !is_second;
 	}
 
+	payload
+}
+
+#[test]
+fn encode_decode() {
+	let read_string = fs::read_to_string("./fixtures//ax25_frame.hex").expect("Should have been able to read the file");
+	let payload = parse_hex_string(read_string);
 	assert_eq!(pipeline::decode(&pipeline::encode(&payload)), Ok(payload));
+}
+
+#[test]
+fn from_middle() {
+	let read_string = fs::read_to_string("./fixtures//ax25_frame.hex").expect("Should have been able to read the file");
+	let payload = parse_hex_string(read_string);
+	let p_buffer = BitBuffer::from_bytes(&payload);
+	let air = pipeline::encode(&payload);
+	let mut i = 1usize;
+	while air.len() - i > 17 {
+		let mut cropped_air = BitBuffer::from_bytes(&[]);
+		let mut j = 0;
+		for b in &air {
+			if j == i {
+				cropped_air.push_bit(b);
+			} else {
+				j += i;
+			}
+		}
+		let received = BitBuffer::from_bytes(&pipeline::decode_lossy(&cropped_air).0);
+		for j in 16..received.len() {
+			assert_eq!(received.bit(j), p_buffer.bit(j + i));
+		}
+		i += 1;
+	}
 }

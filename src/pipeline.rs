@@ -92,6 +92,24 @@ pub fn decode(air: &BitBuffer) -> Result<Vec<u8>, BitError> {
 	}
 }
 
+///Decode message received by radio so the data contained in it can be retrieved even if an error occured.
+///
+///__Parameters:__
+///* `air`: The received message.
+///
+///__Returns:__ Decoded data for further examination and an error if the message could not be decoded.
+pub fn decode_lossy(air: &BitBuffer) -> (Vec<u8>, Option<BitError>) {
+	match destuff(&nrzi_decode(&descramble(air))) {
+		Ok(bits) => {
+			if bits.len() % 8 != 0 {
+				return (bits.to_bytes(), Some(BitError::NotByteAligned { len: bits.len() }));
+			}
+			(bits.to_bytes(), None)
+		}
+		Err(error) => (vec![], Some(error)),
+	}
+}
+
 #[cfg(test)]
 mod tests {
 	use super::*;
