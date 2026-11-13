@@ -133,4 +133,14 @@ mod tests {
 			assert_eq!(input, output);
 		}
 	}
+
+	#[test]
+	fn first_12_bits() {
+		let input = BitBuffer::from_bytes(&[0x80, 0x00]);
+		let mut encoder = Encoder::new();
+		let output = encoder.encode(&input);
+		for i in 0..12 {
+			assert_eq!(input.bit(i), output.bit(i));
+		}
+	}
 }
