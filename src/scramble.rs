@@ -1,4 +1,5 @@
 use super::bitbuf::BitBuffer;
+use super::bitbuf::BitBufferIterator;
 
 /** Common base for Encoder and Decoder of scrambling process. */
 struct Coder {
@@ -60,7 +61,7 @@ impl Encoder {
 	/// * `bits`: The bits to scramble.
 	///
 	/// __Returns__: Scrambled bits.
-	pub fn encode(&mut self, bits: &BitBuffer) -> BitBuffer {
+	pub fn encode(&mut self, bits: BitBufferIterator) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for mut b in bits {
 			b ^= self.0.feedback();
@@ -83,7 +84,7 @@ impl Decoder {
 	/// * `bits`: The bits to descramble.
 	///
 	/// __Returns__: Descrambled bits.
-	pub fn decode(&mut self, bits: &BitBuffer) -> BitBuffer {
+	pub fn decode(&mut self, bits: BitBufferIterator) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {
 			output.push_bit(b ^ self.0.feedback());
@@ -110,7 +111,7 @@ mod tests {
 		}
 
 		let mut encoder = Encoder::new();
-		assert_eq!(encoder.encode(&bit_buffer), BitBuffer::from_bytes(&[0x31, 0x31, 0x38, 0xbf, 0x22, 0x9b, 0x8f, 0xcd, 0x02]));
+		assert_eq!(encoder.encode(bit_buffer.into_iter()), BitBuffer::from_bytes(&[0x31, 0x31, 0x38, 0xbf, 0x22, 0x9b, 0x8f, 0xcd, 0x02]));
 	}
 
 	#[test]
@@ -127,8 +128,8 @@ mod tests {
 			let mut encoder = Encoder::new();
 			let mut decoder = Decoder::new();
 
-			let in_between = encoder.encode(&input);
-			let output = decoder.decode(&in_between);
+			let in_between = encoder.encode(input.into_iter());
+			let output = decoder.decode(in_between.into_iter());
 
 			assert_eq!(input, output);
 		}
@@ -138,7 +139,7 @@ mod tests {
 	fn first_12_bits() {
 		let input = BitBuffer::from_bytes(&[0x80, 0x00]);
 		let mut encoder = Encoder::new();
-		let output = encoder.encode(&input);
+		let output = encoder.encode(input.into_iter());
 		for i in 0..12 {
 			assert_eq!(input.bit(i), output.bit(i));
 		}
@@ -148,13 +149,13 @@ mod tests {
 	fn self_sync() {
 		let input = BitBuffer::from_bytes(&[0x80, 0x00, 0x11, 0xff]);
 		let mut encoder = Encoder::new();
-		let air = encoder.encode(&input);
+		let air = encoder.encode(input.into_iter());
 		let mut cropped_air = BitBuffer::from_bytes(&[]);
 		for i in 2..air.len() {
 			cropped_air.push_bit(air.bit(i).expect(""));
 		}
 		let mut decoder = Decoder::new();
-		let decoded = decoder.decode(&cropped_air);
+		let decoded = decoder.decode(cropped_air.into_iter());
 		let mut cropped_input = BitBuffer::from_bytes(&[]);
 		let mut cropped_decoded = BitBuffer::from_bytes(&[]);
 		for i in 16..decoded.len() {

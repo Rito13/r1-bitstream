@@ -1,4 +1,5 @@
 use super::bitbuf::BitBuffer;
+use super::bitbuf::BitBufferIterator;
 
 /** Common base of en/decoder of NRZI process. */
 struct Coder {
@@ -29,7 +30,7 @@ impl Encoder {
 	/// * `bits`: The bit buffer to serialize.
 	///
 	/// __Returns:__ The buffer with bits coded by NRZI.
-	pub fn encode(&mut self, bits: &BitBuffer) -> BitBuffer {
+	pub fn encode(&mut self, bits: BitBufferIterator) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {
 			self.0.current_level ^= !b; // XOR will flip the value if !b == 1.
@@ -52,7 +53,7 @@ impl Decoder {
 	/// * `bits`: The bit buffer to deserialize.
 	///
 	/// __Returns:__ The buffer containing decoded data.
-	pub fn decode(&mut self, bits: &BitBuffer) -> BitBuffer {
+	pub fn decode(&mut self, bits: BitBufferIterator) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {
 			output.push_bit(b == self.0.current_level);
@@ -76,14 +77,14 @@ mod tests {
 		for bytes in [[0x00u8, 0x55], [0xFF, 0xFF], [0x55, 0x33], [0xAA, 0x99]] {
 			let input = BitBuffer::from_bytes(&[bytes[0]]);
 			let mut encoder = Encoder::new();
-			let output = encoder.encode(&input);
+			let output = encoder.encode(input.into_iter());
 			assert_eq!(output.to_bytes()[0], bytes[1], "encode({})", bytes[0]);
 		}
 
 		for bytes in [[0x00u8, 0x55], [0xFF, 0xFF], [0x55, 0x33], [0xAA, 0x99]] {
 			let input = BitBuffer::from_bytes(&[bytes[1]]);
 			let mut decoder = Decoder::new();
-			let output = decoder.decode(&input);
+			let output = decoder.decode(input.into_iter());
 			assert_eq!(output.to_bytes()[0], bytes[0], "decode({})", bytes[1]);
 		}
 	}
@@ -106,8 +107,8 @@ mod tests {
 			let mut encoder = Encoder::new();
 			let mut decoder = Decoder::new();
 
-			let in_between = encoder.encode(&input);
-			let output = decoder.decode(&in_between);
+			let in_between = encoder.encode(input.into_iter());
+			let output = decoder.decode(in_between.into_iter());
 
 			assert_eq!(input, output);
 		}

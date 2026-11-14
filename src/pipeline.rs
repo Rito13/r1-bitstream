@@ -11,7 +11,7 @@ use super::stuffing;
 ///
 /// __Returns__: Scrambled bits.
 pub fn scramble(input: &BitBuffer) -> BitBuffer {
-	scramble::Encoder::new().encode(input)
+	scramble::Encoder::new().encode(input.into_iter())
 }
 
 /// Perform descrambling on given bits.
@@ -21,7 +21,7 @@ pub fn scramble(input: &BitBuffer) -> BitBuffer {
 ///
 /// __Returns__: Descrambled bits.
 pub fn descramble(input: &BitBuffer) -> BitBuffer {
-	scramble::Decoder::new().decode(input)
+	scramble::Decoder::new().decode(input.into_iter())
 }
 
 /// Encode given bits with NRZI.
@@ -31,7 +31,7 @@ pub fn descramble(input: &BitBuffer) -> BitBuffer {
 ///
 /// __Returns:__ Encoded bits.
 pub fn nrzi_encode(input: &BitBuffer) -> BitBuffer {
-	nrzi::Encoder::new().encode(input)
+	nrzi::Encoder::new().encode(input.into_iter())
 }
 
 /// Decode given bits with NRZI.
@@ -41,7 +41,7 @@ pub fn nrzi_encode(input: &BitBuffer) -> BitBuffer {
 ///
 /// __Returns:__ Decoded bits.
 pub fn nrzi_decode(input: &BitBuffer) -> BitBuffer {
-	nrzi::Decoder::new().decode(input)
+	nrzi::Decoder::new().decode(input.into_iter())
 }
 
 /// Perform bit stuffing on given bits.
@@ -51,7 +51,7 @@ pub fn nrzi_decode(input: &BitBuffer) -> BitBuffer {
 ///
 /// __Returns:__ The stuffed bits.
 pub fn stuff(input: &BitBuffer) -> BitBuffer {
-	stuffing::Encoder::new().encode(input)
+	stuffing::Encoder::new().encode(input.into_iter())
 }
 
 /// Perform bit destuffing on given bits.
@@ -61,7 +61,7 @@ pub fn stuff(input: &BitBuffer) -> BitBuffer {
 ///
 /// __Returns:__ The destuffed bits or an appropriate error.
 pub fn destuff(input: &BitBuffer) -> Result<BitBuffer, BitError> {
-	stuffing::Decoder::new().decode(input)
+	stuffing::Decoder::new().decode(input.into_iter())
 }
 
 /// Encode data so it can be safely send over the radio.

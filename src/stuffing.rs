@@ -31,7 +31,7 @@ impl Encoder {
 	/// * `bits`: The bit buffer to stuff.
 	///
 	/// __Returns:__ The buffer with bits stuffed.
-	pub fn encode(&mut self, bits: &BitBuffer) -> BitBuffer {
+	pub fn encode(&mut self, bits: BitBufferIterator) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {
 			output.push_bit(b);
@@ -61,11 +61,10 @@ impl Decoder {
 	/// * `bits`: The bit buffer with stuffed bits.
 	///
 	/// __Returns:__ The destuffed buffer or a BitError if the given buffer is not destuffable.
-	pub fn decode(&mut self, bits: &BitBuffer) -> Result<BitBuffer, BitError> {
+	pub fn decode(&mut self, mut bits: BitBufferIterator) -> Result<BitBuffer, BitError> {
 		let mut output = BitBuffer::from_bytes(&[]);
-		let mut iter: BitBufferIterator = bits.into_iter();
 		loop {
-			let value = iter.next();
+			let value = bits.next();
 			match value {
 				None => {
 					break;
@@ -73,7 +72,7 @@ impl Decoder {
 				Some(b) => {
 					if self.0.ones_count == 5 {
 						if b {
-							return Err(BitError::SixOnes { at: iter.get_index_of_last_bit() });
+							return Err(BitError::SixOnes { at: bits.get_index_of_last_bit() });
 						}
 						self.0.ones_count = 0;
 						continue;
@@ -88,7 +87,9 @@ impl Decoder {
 			}
 		}
 		if self.0.ones_count == 5 {
-			return Err(BitError::TruncatedStuff { at: bits.len() - 1 });
+			return Err(BitError::TruncatedStuff {
+				at: bits.get_index_of_last_bit() - 1, // The last bit is by one out of bounds.
+			});
 		}
 		Ok(output)
 	}
@@ -118,11 +119,11 @@ mod tests {
 			[BitBuffer::from_bytes(&[0x00]), BitBuffer::from_bytes(&[0x00])],
 		] {
 			let mut encoder = Encoder::new();
-			let output = encoder.encode(&input);
+			let output = encoder.encode(input.into_iter());
 			assert_eq!(output, expected_output, "encode() with input[0..7] == 0x{:X}", input.to_bytes()[0]);
 
 			let mut decoder = Decoder::new();
-			let output = decoder.decode(&expected_output).expect("Test value is invalid.");
+			let output = decoder.decode(expected_output.into_iter()).expect("Test value is invalid.");
 			assert_eq!(output, input, "decode() with expected_output[0..7] == 0x{:X}", expected_output.to_bytes()[0]);
 		}
 	}
@@ -147,8 +148,8 @@ mod tests {
 			let mut encoder = Encoder::new();
 			let mut decoder = Decoder::new();
 
-			let in_between = encoder.encode(&input);
-			let output = decoder.decode(&in_between).expect("Something went wrong.");
+			let in_between = encoder.encode(input.into_iter());
+			let output = decoder.decode(in_between.into_iter()).expect("Something went wrong.");
 
 			assert_eq!(input, output);
 		}
@@ -158,13 +159,13 @@ mod tests {
 	fn six_ones() {
 		let bit_buffer = BitBuffer::from_bytes(&[0x7E]);
 		let mut decoder = Decoder::new();
-		assert_eq!(decoder.decode(&bit_buffer), Err(BitError::SixOnes { at: 6 }));
+		assert_eq!(decoder.decode(bit_buffer.into_iter()), Err(BitError::SixOnes { at: 6 }));
 	}
 
 	#[test]
 	fn truncated() {
 		let bit_buffer = BitBuffer::from_bytes(&[0x9F]);
 		let mut decoder = Decoder::new();
-		assert_eq!(decoder.decode(&bit_buffer), Err(BitError::TruncatedStuff { at: 7 }));
+		assert_eq!(decoder.decode(bit_buffer.into_iter()), Err(BitError::TruncatedStuff { at: 7 }));
 	}
 }
