@@ -19,12 +19,12 @@ pub enum BitError {
 }
 
 impl std::fmt::Display for BitError {
-	///Formats the BitError using the given formatter.
+	/// Formats the BitError using the given formatter.
 	///
-	///__Parameters:__
-	///* `f`: The formatter to use.
+	/// __Parameters:__
+	/// * `f`: The formatter to use.
 	///
-	///__Returns__: Error or a success value.
+	/// __Returns__: Error or a success value.
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		match self {
 			BitError::SixOnes { at } => {

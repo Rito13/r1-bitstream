@@ -18,18 +18,18 @@ impl Coder {
 	/** Mask that allows to extract bit 16 from `sr`. */
 	const SR_BIT_16: u32 = 1 << Coder::SR_BIT_16_INDEX;
 
-	///Calculate the value of feedback from current state of `sr`.
+	/// Calculate the value of feedback from current state of `sr`.
 	///
-	///__Returns:__ The calculated single bit feedback.
+	/// __Returns:__ The calculated single bit feedback.
 	#[inline]
 	fn feedback(&mut self) -> bool {
 		(((self.sr & Coder::SR_BIT_11) >> Coder::SR_BIT_11_INDEX) ^ ((self.sr & Coder::SR_BIT_16) >> Coder::SR_BIT_16_INDEX)) == 1
 	}
 
-	///Update the value of `sr` after an bit was encoded/decoded.
+	/// Update the value of `sr` after an bit was encoded/decoded.
 	///
-	///__Parameters:__
-	///* `b`: The encoded bit that was encoded or the encoded bit that was decoded.
+	/// __Parameters:__
+	/// * `b`: The encoded bit that was encoded or the encoded bit that was decoded.
 	#[inline]
 	fn update_sr(&mut self, b: bool) {
 		self.sr <<= 1;
@@ -54,12 +54,12 @@ pub struct Encoder(Coder);
 pub struct Decoder(Coder);
 
 impl Encoder {
-	///Perform the scrambling process on given bits.
+	/// Perform the scrambling process on given bits.
 	///
-	///__Parameters:__
-	///* `bits`: The bits to scramble.
+	/// __Parameters:__
+	/// * `bits`: The bits to scramble.
 	///
-	///__Returns__: Scrambled bits.
+	/// __Returns__: Scrambled bits.
 	pub fn encode(&mut self, bits: &BitBuffer) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for mut b in bits {
@@ -77,12 +77,12 @@ impl Encoder {
 }
 
 impl Decoder {
-	///Perform the descrambling process on given bits.
+	/// Perform the descrambling process on given bits.
 	///
-	///__Parameters:__
-	///* `bits`: The bits to descramble.
+	/// __Parameters:__
+	/// * `bits`: The bits to descramble.
 	///
-	///__Returns__: Descrambled bits.
+	/// __Returns__: Descrambled bits.
 	pub fn decode(&mut self, bits: &BitBuffer) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {

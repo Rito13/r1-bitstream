@@ -4,82 +4,82 @@ use super::nrzi;
 use super::scramble;
 use super::stuffing;
 
-///Perform scrambling on given bits.
+/// Perform scrambling on given bits.
 ///
-///__Parameters:__
-///* `input`: The bits to scramble.
+/// __Parameters:__
+/// * `input`: The bits to scramble.
 ///
-///__Returns__: Scrambled bits.
+/// __Returns__: Scrambled bits.
 pub fn scramble(input: &BitBuffer) -> BitBuffer {
 	scramble::Encoder::new().encode(input)
 }
 
-///Perform descrambling on given bits.
+/// Perform descrambling on given bits.
 ///
-///__Parameters:__
-///* `input`: The bits to descramble.
+/// __Parameters:__
+/// * `input`: The bits to descramble.
 ///
-///__Returns__: Descrambled bits.
+/// __Returns__: Descrambled bits.
 pub fn descramble(input: &BitBuffer) -> BitBuffer {
 	scramble::Decoder::new().decode(input)
 }
 
-///Encode given bits with NRZI.
+/// Encode given bits with NRZI.
 ///
-///__Parameters:__
-///* `input`: The bits to encode.
+/// __Parameters:__
+/// * `input`: The bits to encode.
 ///
-///__Returns:__ Encoded bits.
+/// __Returns:__ Encoded bits.
 pub fn nrzi_encode(input: &BitBuffer) -> BitBuffer {
 	nrzi::Encoder::new().encode(input)
 }
 
-///Decode given bits with NRZI.
+/// Decode given bits with NRZI.
 ///
-///__Parameters:__
-///* `input`: The bits to decode.
+/// __Parameters:__
+/// * `input`: The bits to decode.
 ///
-///__Returns:__ Decoded bits.
+/// __Returns:__ Decoded bits.
 pub fn nrzi_decode(input: &BitBuffer) -> BitBuffer {
 	nrzi::Decoder::new().decode(input)
 }
 
-///Perform bit stuffing on given bits.
+/// Perform bit stuffing on given bits.
 ///
-///__Parameters:__
-///* `input`: The bits stuff.
+/// __Parameters:__
+/// * `input`: The bits stuff.
 ///
-///__Returns:__ The stuffed bits.
+/// __Returns:__ The stuffed bits.
 pub fn stuff(input: &BitBuffer) -> BitBuffer {
 	stuffing::Encoder::new().encode(input)
 }
 
-///Perform bit destuffing on given bits.
+/// Perform bit destuffing on given bits.
 ///
-///__Parameters:__
-///* `input`: The bits destuff.
+/// __Parameters:__
+/// * `input`: The bits destuff.
 ///
-///__Returns:__ The destuffed bits or an appropriate error.
+/// __Returns:__ The destuffed bits or an appropriate error.
 pub fn destuff(input: &BitBuffer) -> Result<BitBuffer, BitError> {
 	stuffing::Decoder::new().decode(input)
 }
 
-///Encode data so it can be safely send over the radio.
+/// Encode data so it can be safely send over the radio.
 ///
-///__Parameters:__
-///* `payload`: The data to encode.
+/// __Parameters:__
+/// * `payload`: The data to encode.
 ///
-///__Returns:__ Encoded data ready to send over the radio.
+/// __Returns:__ Encoded data ready to send over the radio.
 pub fn encode(payload: &[u8]) -> BitBuffer {
 	scramble(&nrzi_encode(&stuff(&BitBuffer::from_bytes(payload))))
 }
 
-///Decode message received by radio so the data contained in it can be retrieved.
+/// Decode message received by radio so the data contained in it can be retrieved.
 ///
-///__Parameters:__
-///* `air`: The received message.
+/// __Parameters:__
+/// * `air`: The received message.
 ///
-///__Returns:__ Decoded data for further examination or an error if the message could not be decoded.
+/// __Returns:__ Decoded data for further examination or an error if the message could not be decoded.
 pub fn decode(air: &BitBuffer) -> Result<Vec<u8>, BitError> {
 	match destuff(&nrzi_decode(&descramble(air))) {
 		Ok(bits) => {
@@ -92,12 +92,12 @@ pub fn decode(air: &BitBuffer) -> Result<Vec<u8>, BitError> {
 	}
 }
 
-///Decode message received by radio so the data contained in it can be retrieved even if an error occured.
+/// Decode message received by radio so the data contained in it can be retrieved even if an error occured.
 ///
-///__Parameters:__
-///* `air`: The received message.
+/// __Parameters:__
+/// * `air`: The received message.
 ///
-///__Returns:__ Decoded data for further examination and an error if the message could not be decoded.
+/// __Returns:__ Decoded data for further examination and an error if the message could not be decoded.
 pub fn decode_lossy(air: &BitBuffer) -> (Vec<u8>, Option<BitError>) {
 	match destuff(&nrzi_decode(&descramble(air))) {
 		Ok(bits) => {
