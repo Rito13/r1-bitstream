@@ -1,5 +1,6 @@
-use r1_bitstream::pipeline;
 use r1_bitstream::bitbuf::BitBuffer;
+use r1_bitstream::biterror::BitError;
+use r1_bitstream::pipeline;
 use std::fs;
 
 /// Parse string with hex representation of bytes.
@@ -51,21 +52,47 @@ fn from_middle() {
 	let payload = parse_hex_string(read_string);
 	let p_buffer = BitBuffer::from_bytes(&payload);
 	let air = pipeline::encode(&payload);
-	let mut i = 1usize;
+	let mut i = 2usize;
 	while air.len() - i > 17 {
+		/* Simulate reading the message from the middle. */
 		let mut cropped_air = BitBuffer::from_bytes(&[]);
 		let mut j = 0;
 		for b in &air {
 			if j == i {
 				cropped_air.push_bit(b);
 			} else {
-				j += i;
+				j += 1;
 			}
 		}
-		let received = BitBuffer::from_bytes(&pipeline::decode_lossy(&cropped_air).0);
-		for j in 16..received.len() {
-			assert_eq!(received.bit(j), p_buffer.bit(j + i));
+
+		/* Decode the received part of the message. */
+		let received = pipeline::decode_from_middle(&cropped_air);
+
+		/* Calculate how many bits from the original message we have lost. */
+		let start = p_buffer.len() - received.0.len() * 8
+			+ match received.1 {
+				None => 0,
+				Some(error) => match error {
+					BitError::NotByteAligned { len } => {
+						print!("[");
+						for v in &received.0 {
+							print!("{v}, ")
+						}
+						println!("] - {len}");
+						8 - len % 8
+					}
+					error => panic!("{error}"),
+				},
+			};
+
+		/* Cut from the original message a slice that we should have received. */
+		let mut cropped_p_buffer = BitBuffer::from_bytes(&[]);
+		for j in start..p_buffer.len() {
+			cropped_p_buffer.push_bit(p_buffer.bit(j).expect(""));
 		}
+
+		assert_eq!(received.0, cropped_p_buffer.to_bytes()); // Compare the decoded data with expected one.
+
 		i += 1;
 	}
 }

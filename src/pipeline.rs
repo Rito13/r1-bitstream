@@ -110,6 +110,37 @@ pub fn decode_lossy(air: &BitBuffer) -> (Vec<u8>, Option<BitError>) {
 	}
 }
 
+/// Decode message received by radio with unknown sate so the data contained in it can be retrieved.
+///
+/// __Parameters:__
+/// * `air`: The received part of a message.
+///
+/// __Returns:__ Decoded data for further examination and an error if the message could not be decoded.
+pub fn decode_from_middle(air: &BitBuffer) -> (Vec<u8>, Option<BitError>) {
+	let descrambled = descramble(&air);
+	let mut iter = descrambled.into_iter();
+	iter.nth(17); // Synchronise.
+	let nrzi_decoded = nrzi::Decoder::new().decode(iter);
+	let mut iter = nrzi_decoded.into_iter();
+	iter.next(); // First bit may be incorrect as we don't know the previous state.
+
+	/* Skip first 0 as we don't know how many ones there where before it. */
+	while match iter.next() {
+		Some(v) => v == true,
+		None => return (vec![], None),
+	} {}
+
+	match stuffing::Decoder::new().decode(iter) {
+		Ok(bits) => {
+			if bits.len() % 8 != 0 {
+				return (bits.to_bytes(), Some(BitError::NotByteAligned { len: bits.len() }));
+			}
+			(bits.to_bytes(), None)
+		}
+		Err(error) => (vec![], Some(error)),
+	}
+}
+
 #[cfg(test)]
 mod tests {
 	use super::*;
