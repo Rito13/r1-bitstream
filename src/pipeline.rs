@@ -117,7 +117,7 @@ pub fn decode_lossy(air: &BitBuffer) -> (Vec<u8>, Option<BitError>) {
 ///
 /// __Returns:__ Decoded data for further examination and an error if the message could not be decoded.
 pub fn decode_from_middle(air: &BitBuffer) -> (Vec<u8>, Option<BitError>) {
-	let descrambled = descramble(&air);
+	let descrambled = descramble(air);
 	let mut iter = descrambled.into_iter();
 	iter.nth(17); // Synchronise.
 	let nrzi_decoded = nrzi::Decoder::new().decode(iter);
@@ -126,7 +126,7 @@ pub fn decode_from_middle(air: &BitBuffer) -> (Vec<u8>, Option<BitError>) {
 
 	/* Skip first 0 as we don't know how many ones there where before it. */
 	while match iter.next() {
-		Some(v) => v == true,
+		Some(v) => v,
 		None => return (vec![], None),
 	} {}
 
