@@ -147,21 +147,23 @@ mod tests {
 
 	#[test]
 	fn self_sync() {
-		let input = BitBuffer::from_bytes(&[0x80, 0x00, 0x11, 0xff]);
+		let input = BitBuffer::from_bytes(&[0x31, 0x31, 0x38, 0xbf, 0x22, 0x9b, 0x8f, 0xcd, 0x02]);
 		let mut encoder = Encoder::new();
 		let air = encoder.encode(input.into_iter());
-		let mut cropped_air = BitBuffer::from_bytes(&[]);
-		for i in 2..air.len() {
-			cropped_air.push_bit(air.bit(i).expect(""));
+		for missed in 1..(air.len() - 17) {
+			let mut cropped_air = BitBuffer::from_bytes(&[]);
+			for i in missed..air.len() {
+				cropped_air.push_bit(air.bit(i).expect(""));
+			}
+			let mut decoder = Decoder::new();
+			let decoded = decoder.decode(cropped_air.into_iter());
+			let mut cropped_input = BitBuffer::from_bytes(&[]);
+			let mut cropped_decoded = BitBuffer::from_bytes(&[]);
+			for i in 17..decoded.len() {
+				cropped_decoded.push_bit(decoded.bit(i).expect(""));
+				cropped_input.push_bit(input.bit(i + missed).expect(""));
+			}
+			assert_eq!(cropped_input, cropped_decoded);
 		}
-		let mut decoder = Decoder::new();
-		let decoded = decoder.decode(cropped_air.into_iter());
-		let mut cropped_input = BitBuffer::from_bytes(&[]);
-		let mut cropped_decoded = BitBuffer::from_bytes(&[]);
-		for i in 16..decoded.len() {
-			cropped_decoded.push_bit(decoded.bit(i).expect(""));
-			cropped_input.push_bit(input.bit(i + 2).expect(""));
-		}
-		assert_eq!(cropped_input, cropped_decoded);
 	}
 }
