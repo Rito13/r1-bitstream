@@ -143,4 +143,24 @@ mod tests {
 			assert_eq!(input.bit(i), output.bit(i));
 		}
 	}
+
+	#[test]
+	fn self_sync() {
+		let input = BitBuffer::from_bytes(&[0x80, 0x00, 0x11, 0xff]);
+		let mut encoder = Encoder::new();
+		let air = encoder.encode(&input);
+		let mut cropped_air = BitBuffer::from_bytes(&[]);
+		for i in 2..air.len() {
+			cropped_air.push_bit(air.bit(i).expect(""));
+		}
+		let mut decoder = Decoder::new();
+		let decoded = decoder.decode(&cropped_air);
+		let mut cropped_input = BitBuffer::from_bytes(&[]);
+		let mut cropped_decoded = BitBuffer::from_bytes(&[]);
+		for i in 16..decoded.len() {
+			cropped_decoded.push_bit(decoded.bit(i).expect(""));
+			cropped_input.push_bit(input.bit(i + 2).expect(""));
+		}
+		assert_eq!(cropped_input, cropped_decoded);
+	}
 }
