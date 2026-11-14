@@ -93,6 +93,8 @@ pub fn decode(air: &BitBuffer) -> Result<Vec<u8>, BitError> {
 }
 
 /// Decode message received by radio so the data contained in it can be retrieved even if an error occured.
+/// If while destuffing 5 consecutive ones without following zero are found then returned vector is empty.
+/// This is not ideal and should be changed in the future.
 ///
 /// __Parameters:__
 /// * `air`: The received message.
@@ -115,7 +117,7 @@ pub fn decode_lossy(air: &BitBuffer) -> (Vec<u8>, Option<BitError>) {
 /// __Parameters:__
 /// * `air`: The received part of a message.
 ///
-/// __Returns:__ Decoded data for further examination and an error if the message could not be decoded.
+/// __Returns:__ As like decode_lossy. Decoded data for further examination and an error if the message could not be decoded.
 pub fn decode_from_middle(air: &BitBuffer) -> (Vec<u8>, Option<BitError>) {
 	let descrambled = descramble(air);
 	let mut iter = descrambled.into_iter();
