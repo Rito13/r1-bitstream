@@ -16,6 +16,8 @@ pub enum BitError {
 		/** The encountered length of destuffed buffer. */
 		len: usize,
 	},
+	/** The stream read from air was too short for the decoder to synchronise and decode some usable data. */
+	ToShortToSynchronise,
 }
 
 impl std::fmt::Display for BitError {
@@ -36,6 +38,9 @@ impl std::fmt::Display for BitError {
 			}
 			BitError::NotByteAligned { len } => {
 				write!(f, "Decoding failed: destuffed buffer is of length {len} which is not divisible by 8.")
+			}
+			BitError::ToShortToSynchronise => {
+				write!(f, "Decoding failed: given buffer was too short for the decoder to synchronise and decode some usable data.")
 			}
 		}
 	}

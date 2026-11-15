@@ -55,13 +55,19 @@ impl Encoder {
 
 impl Decoder {
 	/// Destuff bits in given buffer.
-	/// Removes a zero after echo 5 consecutive ones.
+	/// Removes a zero after each 5 consecutive ones.
+	///
+	/// # Template Parameters
+	/// * `RETUR_AFTER_FIRST_ERROR`: If `true` the destuffing is terminated after encountering first error.
 	///
 	/// # Parameters
 	/// * `bits`: The bit buffer with stuffed bits.
 	///
-	/// __Returns:__ The destuffed buffer or a BitError if the given buffer is not destuffable.
-	pub fn decode(&mut self, mut bits: BitBufferIterator) -> Result<BitBuffer, BitError> {
+	/// # Returns
+	/// The destuffed buffer and a vector of BitErrors if the given buffer is not destuffable.
+	#[inline]
+	fn decode_common<const RETUR_AFTER_FIRST_ERROR: bool>(&mut self, mut bits: BitBufferIterator) -> (BitBuffer, Vec<BitError>) {
+		let mut errors: Vec<BitError> = Vec::with_capacity(1);
 		let mut output = BitBuffer::from_bytes(&[]);
 		loop {
 			let value = bits.next();
@@ -72,7 +78,11 @@ impl Decoder {
 				Some(b) => {
 					if self.0.ones_count == 5 {
 						if b {
-							return Err(BitError::SixOnes { at: bits.get_index_of_last_bit() });
+							errors.push(BitError::SixOnes { at: bits.get_index_of_last_bit() });
+							if RETUR_AFTER_FIRST_ERROR {
+								return (output, errors);
+							}
+							continue; // Find next zero and skip it.
 						}
 						self.0.ones_count = 0;
 						continue;
@@ -87,11 +97,37 @@ impl Decoder {
 			}
 		}
 		if self.0.ones_count == 5 {
-			return Err(BitError::TruncatedStuff {
+			errors.push(BitError::TruncatedStuff {
 				at: bits.get_index_of_last_bit() - 1, // The last bit is by one out of bounds.
 			});
 		}
-		Ok(output)
+		(output, errors)
+	}
+
+	/// Destuff bits in given buffer.
+	/// Removes a zero after each 5 consecutive ones.
+	///
+	/// # Parameters
+	/// * `bits`: The bit buffer with stuffed bits.
+	///
+	/// __Returns:__ The destuffed buffer or a BitError if the given buffer is not destuffable.
+	pub fn decode(&mut self, bits: BitBufferIterator) -> Result<BitBuffer, BitError> {
+		let mut output = self.decode_common::<true>(bits);
+		match output.1.pop() {
+			None => Ok(output.0),
+			Some(error) => Err(error),
+		}
+	}
+
+	/// Destuff bits in given buffer even if it contains non destuffable data.
+	/// Removes a zero after each 5 consecutive ones.
+	///
+	/// # Parameters
+	/// * `bits`: The bit buffer with probably stuffed bits.
+	///
+	/// __Returns:__ The destuffed buffer and vector with all BitErrors that occured.
+	pub fn decode_lossy(&mut self, bits: BitBufferIterator) -> (BitBuffer, Vec<BitError>) {
+		self.decode_common::<false>(bits)
 	}
 
 	/** Construct a new clean decoder. */

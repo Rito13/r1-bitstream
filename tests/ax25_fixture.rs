@@ -53,7 +53,7 @@ fn from_middle() {
 	let p_buffer = BitBuffer::from_bytes(&payload);
 	let air = pipeline::encode(&payload);
 	let mut i = 2usize;
-	while air.len() - i > 17 {
+	while air.len() - i > 18 {
 		/* Simulate reading the message from the middle. */
 		let mut cropped_air = BitBuffer::from_bytes(&[]);
 		let mut j = 0;
@@ -66,11 +66,11 @@ fn from_middle() {
 		}
 
 		/* Decode the received part of the message. */
-		let received = pipeline::decode_from_middle(&cropped_air);
+		let mut received = pipeline::decode_from_middle(&cropped_air);
 
 		/* Calculate how many bits from the original message we have lost. */
 		let start = p_buffer.len() - received.0.len() * 8
-			+ match received.1 {
+			+ match received.1.pop() {
 				None => 0,
 				Some(error) => match error {
 					BitError::NotByteAligned { len } => {

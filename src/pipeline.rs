@@ -1,4 +1,5 @@
 use super::bitbuf::BitBuffer;
+use super::bitbuf::BitBufferIterator;
 use super::biterror::BitError;
 use super::nrzi;
 use super::scramble;
@@ -94,24 +95,28 @@ pub fn decode(air: &BitBuffer) -> Result<Vec<u8>, BitError> {
 	}
 }
 
+/// Perform bit destuffing on given bits without terminating on errors.
+///
+/// # Parameters
+/// * `input`: The bits destuff.
+///
+/// __Returns:__ The destuffed bits and a vector with appropriate errors.
+fn destuff_lossy(input: BitBufferIterator) -> (Vec<u8>, Vec<BitError>) {
+	let mut out = stuffing::Decoder::new().decode_lossy(input);
+	if !out.0.len().is_multiple_of(8) {
+		out.1.push(BitError::NotByteAligned { len: out.0.len() });
+	}
+	(out.0.to_bytes(), out.1)
+}
+
 /// Decode message received by radio so the data contained in it can be retrieved even if an error occured.
-/// If while destuffing 5 consecutive ones without following zero are found then returned vector is empty.
-/// This is not ideal and should be changed in the future.
 ///
 /// # Parameters
 /// * `air`: The received message.
 ///
-/// __Returns:__ Decoded data for further examination and an error if the message could not be decoded.
-pub fn decode_lossy(air: &BitBuffer) -> (Vec<u8>, Option<BitError>) {
-	match destuff(&nrzi_decode(&descramble(air))) {
-		Ok(bits) => {
-			if bits.len() % 8 != 0 {
-				return (bits.to_bytes(), Some(BitError::NotByteAligned { len: bits.len() }));
-			}
-			(bits.to_bytes(), None)
-		}
-		Err(error) => (vec![], Some(error)),
-	}
+/// __Returns:__ Decoded data for further examination and a vector of errors if the message could not be decoded.
+pub fn decode_lossy(air: &BitBuffer) -> (Vec<u8>, Vec<BitError>) {
+	destuff_lossy(nrzi_decode(&descramble(air)).into_iter())
 }
 
 /// Decode message received by radio with unknown sate so the data contained in it can be retrieved.
@@ -119,9 +124,14 @@ pub fn decode_lossy(air: &BitBuffer) -> (Vec<u8>, Option<BitError>) {
 /// # Parameters
 /// * `air`: The received part of a message.
 ///
-/// __Returns:__ As like decode_lossy. Decoded data for further examination and an error if the message could not be decoded.
-pub fn decode_from_middle(air: &BitBuffer) -> (Vec<u8>, Option<BitError>) {
+/// __Returns:__ As like decode_lossy. Decoded data for further examination and a vector of errors if the message could not be decoded.
+pub fn decode_from_middle(air: &BitBuffer) -> (Vec<u8>, Vec<BitError>) {
 	let descrambled = descramble(air);
+
+	if descrambled.len() < 17 {
+		return (vec![], vec![BitError::ToShortToSynchronise]);
+	}
+
 	let mut iter = descrambled.into_iter();
 	iter.nth(16); // Synchronise.
 	let nrzi_decoded = nrzi::Decoder::new().decode(iter);
@@ -131,18 +141,10 @@ pub fn decode_from_middle(air: &BitBuffer) -> (Vec<u8>, Option<BitError>) {
 	/* Skip first 0 as we don't know how many ones there where before it. */
 	while match iter.next() {
 		Some(v) => v,
-		None => return (vec![], None),
+		None => return (vec![], vec![BitError::ToShortToSynchronise]),
 	} {}
 
-	match stuffing::Decoder::new().decode(iter) {
-		Ok(bits) => {
-			if bits.len() % 8 != 0 {
-				return (bits.to_bytes(), Some(BitError::NotByteAligned { len: bits.len() }));
-			}
-			(bits.to_bytes(), None)
-		}
-		Err(error) => (vec![], Some(error)),
-	}
+	destuff_lossy(iter)
 }
 
 #[cfg(test)]
