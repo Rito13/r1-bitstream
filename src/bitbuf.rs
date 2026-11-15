@@ -3,8 +3,8 @@
 pub struct BitBuffer {
 	/** The raw data storage. Bits are grouped by eight inside a u8 and stored in MSB-first order. */
 	data: Vec<u8>,
-	/** The number of bits it the last byte in the data. */
-	bits_in_last_byte: u8,
+	/** The number of free bits it the last byte in the data. */
+	free_bits_in_last_byte: u8,
 }
 
 impl BitBuffer {
@@ -22,7 +22,7 @@ impl BitBuffer {
 	pub fn from_bytes(bytes: &[u8]) -> Self {
 		BitBuffer {
 			data: bytes.to_vec(),
-			bits_in_last_byte: 8,
+			free_bits_in_last_byte: 0,
 		}
 	}
 
@@ -38,7 +38,7 @@ impl BitBuffer {
 	///
 	/// __Returns:__ The number of bits currently stored inside this buffer.
 	pub fn len(&self) -> usize {
-		self.data.len() * 8 + (self.bits_in_last_byte as usize) - 8
+		self.data.len() * 8 - self.free_bits_in_last_byte as usize
 	}
 
 	/// Check if this buffer is empty.
@@ -69,13 +69,13 @@ impl BitBuffer {
 	/// * `bit`: The value for the inserted bit.
 	pub fn push_bit(&mut self, bit: bool) {
 		/* MSB-first */
-		if self.bits_in_last_byte == 8 {
+		if self.free_bits_in_last_byte == 0 {
 			self.data.push((bit as u8) << BitBuffer::FIRS_BIT_INDEX);
-			self.bits_in_last_byte = 1;
+			self.free_bits_in_last_byte = 7;
 		} else {
 			let byte = self.data.len() - 1;
-			self.data[byte] |= (bit as u8) << (BitBuffer::FIRS_BIT_INDEX - self.bits_in_last_byte);
-			self.bits_in_last_byte += 1;
+			self.free_bits_in_last_byte -= 1;
+			self.data[byte] |= (bit as u8) << self.free_bits_in_last_byte;
 		}
 	}
 
@@ -87,7 +87,7 @@ impl BitBuffer {
 			None
 		} else {
 			let byte = self.data.len() - 1;
-			Some(((self.data[byte] >> (BitBuffer::FIRS_BIT_INDEX - (self.bits_in_last_byte - 1))) & 0b1) == 1) // MSB-first
+			Some(((self.data[byte] >> (self.free_bits_in_last_byte)) & 0b1) == 1) // MSB-first
 		}
 	}
 }
@@ -155,12 +155,14 @@ mod tests {
 
 		assert!(bit_buffer.is_empty());
 		assert_eq!(bit_buffer.len(), 0); // Check if len correctly works for empty buffer.
+		assert_eq!(bit_buffer, Default::default()); // Check if default for BitBuffer works.
 
 		let bits_to_test = vec![true, true, true, false, false, false, true, true, false, false, true];
 
 		/* Push some bits to it. */
 		for bit in &bits_to_test {
-			bit_buffer.push_bit(*bit)
+			bit_buffer.push_bit(*bit);
+			assert_eq!(bit_buffer.last_bit(), Some(*bit));
 		}
 
 		assert!(!bit_buffer.is_empty());
