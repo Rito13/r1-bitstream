@@ -30,7 +30,8 @@ impl Encoder {
 	/// # Parameters
 	/// * `bits`: The bit buffer to stuff.
 	///
-	/// __Returns:__ The buffer with bits stuffed.
+	/// # Returns
+	/// The buffer with bits stuffed.
 	pub fn encode(&mut self, bits: BitBufferIterator) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {
@@ -110,7 +111,8 @@ impl Decoder {
 	/// # Parameters
 	/// * `bits`: The bit buffer with stuffed bits.
 	///
-	/// __Returns:__ The destuffed buffer or a BitError if the given buffer is not destuffable.
+	/// # Returns
+	/// The destuffed buffer or a BitError if the given buffer is not destuffable.
 	pub fn decode(&mut self, bits: BitBufferIterator) -> Result<BitBuffer, BitError> {
 		let mut output = self.decode_common::<true>(bits);
 		match output.1.pop() {
@@ -125,7 +127,8 @@ impl Decoder {
 	/// # Parameters
 	/// * `bits`: The bit buffer with probably stuffed bits.
 	///
-	/// __Returns:__ The destuffed buffer and vector with all BitErrors that occured.
+	/// # Returns
+	/// The destuffed buffer and vector with all BitErrors that occured.
 	pub fn decode_lossy(&mut self, bits: BitBufferIterator) -> (BitBuffer, Vec<BitError>) {
 		self.decode_common::<false>(bits)
 	}

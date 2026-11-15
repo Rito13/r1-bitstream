@@ -29,7 +29,8 @@ impl Encoder {
 	/// # Parameters
 	/// * `bits`: The bit buffer to serialize.
 	///
-	/// __Returns:__ The buffer with bits coded by NRZI.
+	/// # Returns
+	/// The buffer with bits coded by NRZI.
 	pub fn encode(&mut self, bits: BitBufferIterator) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {
@@ -52,7 +53,8 @@ impl Decoder {
 	/// # Parameters
 	/// * `bits`: The bit buffer to deserialize.
 	///
-	/// __Returns:__ The buffer containing decoded data.
+	/// # Returns
+	/// The buffer containing decoded data.
 	pub fn decode(&mut self, bits: BitBufferIterator) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {

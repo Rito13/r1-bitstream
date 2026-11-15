@@ -32,7 +32,8 @@ pub fn descramble(input: &BitBuffer) -> BitBuffer {
 /// # Parameters
 /// * `input`: The bits to encode.
 ///
-/// __Returns:__ Encoded bits.
+/// # Returns
+/// Encoded bits.
 pub fn nrzi_encode(input: &BitBuffer) -> BitBuffer {
 	nrzi::Encoder::new().encode(input.into_iter())
 }
@@ -42,7 +43,8 @@ pub fn nrzi_encode(input: &BitBuffer) -> BitBuffer {
 /// # Parameters
 /// * `input`: The bits to decode.
 ///
-/// __Returns:__ Decoded bits.
+/// # Returns
+/// Decoded bits.
 pub fn nrzi_decode(input: &BitBuffer) -> BitBuffer {
 	nrzi::Decoder::new().decode(input.into_iter())
 }
@@ -52,7 +54,8 @@ pub fn nrzi_decode(input: &BitBuffer) -> BitBuffer {
 /// # Parameters
 /// * `input`: The bits stuff.
 ///
-/// __Returns:__ The stuffed bits.
+/// # Returns
+/// The stuffed bits.
 pub fn stuff(input: &BitBuffer) -> BitBuffer {
 	stuffing::Encoder::new().encode(input.into_iter())
 }
@@ -62,7 +65,8 @@ pub fn stuff(input: &BitBuffer) -> BitBuffer {
 /// # Parameters
 /// * `input`: The bits destuff.
 ///
-/// __Returns:__ The destuffed bits or an appropriate error.
+/// # Returns
+/// The destuffed bits or an appropriate error.
 pub fn destuff(input: &BitBuffer) -> Result<BitBuffer, BitError> {
 	stuffing::Decoder::new().decode(input.into_iter())
 }
@@ -72,7 +76,8 @@ pub fn destuff(input: &BitBuffer) -> Result<BitBuffer, BitError> {
 /// # Parameters
 /// * `payload`: The data to encode.
 ///
-/// __Returns:__ Encoded data ready to send over the radio.
+/// # Returns
+/// Encoded data ready to send over the radio.
 pub fn encode(payload: &[u8]) -> BitBuffer {
 	scramble(&nrzi_encode(&stuff(&BitBuffer::from_bytes(payload))))
 }
@@ -82,7 +87,8 @@ pub fn encode(payload: &[u8]) -> BitBuffer {
 /// # Parameters
 /// * `air`: The received message.
 ///
-/// __Returns:__ Decoded data for further examination or an error if the message could not be decoded.
+/// # Returns
+/// Decoded data for further examination or an error if the message could not be decoded.
 pub fn decode(air: &BitBuffer) -> Result<Vec<u8>, BitError> {
 	match destuff(&nrzi_decode(&descramble(air))) {
 		Ok(bits) => {
@@ -100,7 +106,8 @@ pub fn decode(air: &BitBuffer) -> Result<Vec<u8>, BitError> {
 /// # Parameters
 /// * `input`: The bits destuff.
 ///
-/// __Returns:__ The destuffed bits and a vector with appropriate errors.
+/// # Returns
+/// The destuffed bits and a vector with appropriate errors.
 fn destuff_lossy(input: BitBufferIterator) -> (Vec<u8>, Vec<BitError>) {
 	let mut out = stuffing::Decoder::new().decode_lossy(input);
 	if !out.0.len().is_multiple_of(8) {
@@ -114,7 +121,8 @@ fn destuff_lossy(input: BitBufferIterator) -> (Vec<u8>, Vec<BitError>) {
 /// # Parameters
 /// * `air`: The received message.
 ///
-/// __Returns:__ Decoded data for further examination and a vector of errors if the message could not be decoded.
+/// # Returns
+/// Decoded data for further examination and a vector of errors if the message could not be decoded.
 pub fn decode_lossy(air: &BitBuffer) -> (Vec<u8>, Vec<BitError>) {
 	destuff_lossy(nrzi_decode(&descramble(air)).into_iter())
 }
@@ -124,7 +132,8 @@ pub fn decode_lossy(air: &BitBuffer) -> (Vec<u8>, Vec<BitError>) {
 /// # Parameters
 /// * `air`: The received part of a message.
 ///
-/// __Returns:__ As like decode_lossy. Decoded data for further examination and a vector of errors if the message could not be decoded.
+/// # Returns
+/// As like decode_lossy. Decoded data for further examination and a vector of errors if the message could not be decoded.
 pub fn decode_from_middle(air: &BitBuffer) -> (Vec<u8>, Vec<BitError>) {
 	let descrambled = descramble(air);
 

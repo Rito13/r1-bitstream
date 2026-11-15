@@ -29,21 +29,24 @@ impl BitBuffer {
 	/// Convert this buffer into a vector of bytes.
 	/// The last byte is zero-panned during the conversion.
 	///
-	/// __Returns:__ Raw copy of the data stored inside this buffer.
+	/// # Returns
+	/// Raw copy of the data stored inside this buffer.
 	pub fn to_bytes(&self) -> Vec<u8> {
 		self.data.clone() // Zero-pads the last byte.
 	}
 
 	/// Get the length of this buffer.
 	///
-	/// __Returns:__ The number of bits currently stored inside this buffer.
+	/// # Returns
+	/// The number of bits currently stored inside this buffer.
 	pub fn len(&self) -> usize {
 		self.data.len() * 8 - self.free_bits_in_last_byte as usize
 	}
 
 	/// Check if this buffer is empty.
 	///
-	/// __Returns:__ `true` if and only if the buffer does not contain any bits.
+	/// # Returns
+	/// `true` if and only if the buffer does not contain any bits.
 	pub fn is_empty(&self) -> bool {
 		self.data.is_empty()
 	}
@@ -53,7 +56,8 @@ impl BitBuffer {
 	/// # Parameters
 	/// * `index`: The index of the bit to get the value of.
 	///
-	/// __Returns:__ The value of the bit or `None` if the index is out of bounds.
+	/// # Returns
+	/// The value of the bit or `None` if the index is out of bounds.
 	pub fn bit(&self, index: usize) -> Option<bool> {
 		if self.len() <= index {
 			None
@@ -81,7 +85,8 @@ impl BitBuffer {
 
 	/// Get the value of the last bit inside the buffer.
 	///
-	/// __Returns:__ The value of the last bit or `None` if the buffer is empty.
+	/// # Returns
+	/// The value of the last bit or `None` if the buffer is empty.
 	pub fn last_bit(&self) -> Option<bool> {
 		if self.is_empty() {
 			None
@@ -101,7 +106,8 @@ pub struct BitBufferIterator<'bit_buffer> {
 impl BitBufferIterator<'_> {
 	/// Get the index of the previously returned bit.
 	///
-	/// __Returns:__ The index of that bit inside the iterated buffer.
+	/// # Returns
+	/// The index of that bit inside the iterated buffer.
 	pub fn get_index_of_last_bit(&self) -> usize {
 		self.index - 1
 	}
@@ -113,7 +119,8 @@ impl Iterator for BitBufferIterator<'_> {
 
 	/// Increment the iterator and get the value of the new bit pointed by the iterator.
 	///
-	/// __Returns:__ The value of currently the next bit.
+	/// # Returns
+	/// The value of currently the next bit.
 	fn next(&mut self) -> Option<Self::Item> {
 		let out = self.bit_buffer.bit(self.index);
 		self.index += 1;
@@ -122,7 +129,8 @@ impl Iterator for BitBufferIterator<'_> {
 
 	/// Increment the iterator by n and get the value of the new bit pointed by the iterator.
 	///
-	/// __Returns:__ The value of currently the nth bit.
+	/// # Returns
+	/// The value of currently the nth bit.
 	fn nth(&mut self, n: usize) -> Option<Self::Item> {
 		self.index += n;
 		self.next()
@@ -137,7 +145,8 @@ impl<'bit_buffer> IntoIterator for &'bit_buffer BitBuffer {
 
 	/// Convert this buffer into a forward iterator.
 	///
-	/// __Returns:__ The forward iterator iterating over this buffer.
+	/// # Returns
+	/// The forward iterator iterating over this buffer.
 	fn into_iter(self) -> Self::IntoIter {
 		BitBufferIterator { bit_buffer: self, index: 0 }
 	}

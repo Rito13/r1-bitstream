@@ -21,7 +21,8 @@ impl Coder {
 
 	/// Calculate the value of feedback from current state of `sr`.
 	///
-	/// __Returns:__ The calculated single bit feedback.
+	/// # Returns
+	/// The calculated single bit feedback.
 	#[inline]
 	fn feedback(&mut self) -> bool {
 		(((self.sr & Coder::SR_BIT_11) >> Coder::SR_BIT_11_INDEX) ^ ((self.sr & Coder::SR_BIT_16) >> Coder::SR_BIT_16_INDEX)) == 1

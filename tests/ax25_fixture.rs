@@ -8,7 +8,8 @@ use std::fs;
 /// # Parameters
 /// * 'string': The string to parse.
 ///
-/// __Returns:__ Vector with parsed bytes.
+/// # Returns
+/// Vector with parsed bytes.
 fn parse_hex_string(string: String) -> Vec<u8> {
 	let contents = string.chars();
 
