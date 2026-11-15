@@ -17,7 +17,7 @@ impl BitBuffer {
 
 	/// Construct a new bit buffer from a table of bytes.
 	///
-	/// __Parameters:__
+	/// # Parameters
 	/// * `bytes`: The table of bytes to initialy store inside the buffer.
 	pub fn from_bytes(bytes: &[u8]) -> Self {
 		BitBuffer {
@@ -50,7 +50,7 @@ impl BitBuffer {
 
 	/// Get the value of a bit under the given index.
 	///
-	/// __Parameters:__
+	/// # Parameters
 	/// * `index`: The index of the bit to get the value of.
 	///
 	/// __Returns:__ The value of the bit or `None` if the index is out of bounds.
@@ -65,7 +65,7 @@ impl BitBuffer {
 
 	/// Insert a new bit at the end of the buffer.
 	///
-	/// __Parameters:__
+	/// # Parameters
 	/// * `bit`: The value for the inserted bit.
 	pub fn push_bit(&mut self, bit: bool) {
 		/* MSB-first */

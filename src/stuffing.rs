@@ -27,7 +27,7 @@ impl Encoder {
 	/// Stuff bits in given buffer.
 	/// Inserts a zero after echo 5 consecutive ones.
 	///
-	/// __Parameters:__
+	/// # Parameters
 	/// * `bits`: The bit buffer to stuff.
 	///
 	/// __Returns:__ The buffer with bits stuffed.
@@ -57,7 +57,7 @@ impl Decoder {
 	/// Destuff bits in given buffer.
 	/// Removes a zero after echo 5 consecutive ones.
 	///
-	/// __Parameters:__
+	/// # Parameters
 	/// * `bits`: The bit buffer with stuffed bits.
 	///
 	/// __Returns:__ The destuffed buffer or a BitError if the given buffer is not destuffable.

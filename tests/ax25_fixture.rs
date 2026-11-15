@@ -5,7 +5,7 @@ use std::fs;
 
 /// Parse string with hex representation of bytes.
 ///
-/// __Parameters:__
+/// # Parameters
 /// * 'string': The string to parse.
 ///
 /// __Returns:__ Vector with parsed bytes.

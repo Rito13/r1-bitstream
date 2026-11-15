@@ -29,7 +29,7 @@ impl Coder {
 
 	/// Update the value of `sr` after an bit was encoded/decoded.
 	///
-	/// __Parameters:__
+	/// # Parameters
 	/// * `b`: The encoded bit that was encoded or the encoded bit that was decoded.
 	#[inline]
 	fn update_sr(&mut self, b: bool) {
@@ -57,10 +57,11 @@ pub struct Decoder(Coder);
 impl Encoder {
 	/// Perform the scrambling process on given bits.
 	///
-	/// __Parameters:__
+	/// # Parameters
 	/// * `bits`: The bits to scramble.
 	///
-	/// __Returns__: Scrambled bits.
+	/// # Returns
+	/// Scrambled bits.
 	pub fn encode(&mut self, bits: BitBufferIterator) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for mut b in bits {
@@ -80,10 +81,11 @@ impl Encoder {
 impl Decoder {
 	/// Perform the descrambling process on given bits.
 	///
-	/// __Parameters:__
+	/// # Parameters
 	/// * `bits`: The bits to descramble.
 	///
-	/// __Returns__: Descrambled bits.
+	/// # Returns
+	/// Descrambled bits.
 	pub fn decode(&mut self, bits: BitBufferIterator) -> BitBuffer {
 		let mut output = BitBuffer::from_bytes(&[]);
 		for b in bits {

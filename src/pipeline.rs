@@ -6,27 +6,29 @@ use super::stuffing;
 
 /// Perform scrambling on given bits.
 ///
-/// __Parameters:__
+/// # Parameters
 /// * `input`: The bits to scramble.
 ///
-/// __Returns__: Scrambled bits.
+/// # Returns
+/// Scrambled bits.
 pub fn scramble(input: &BitBuffer) -> BitBuffer {
 	scramble::Encoder::new().encode(input.into_iter())
 }
 
 /// Perform descrambling on given bits.
 ///
-/// __Parameters:__
+/// # Parameters
 /// * `input`: The bits to descramble.
 ///
-/// __Returns__: Descrambled bits.
+/// # Returns
+/// Descrambled bits.
 pub fn descramble(input: &BitBuffer) -> BitBuffer {
 	scramble::Decoder::new().decode(input.into_iter())
 }
 
 /// Encode given bits with NRZI.
 ///
-/// __Parameters:__
+/// # Parameters
 /// * `input`: The bits to encode.
 ///
 /// __Returns:__ Encoded bits.
@@ -36,7 +38,7 @@ pub fn nrzi_encode(input: &BitBuffer) -> BitBuffer {
 
 /// Decode given bits with NRZI.
 ///
-/// __Parameters:__
+/// # Parameters
 /// * `input`: The bits to decode.
 ///
 /// __Returns:__ Decoded bits.
@@ -46,7 +48,7 @@ pub fn nrzi_decode(input: &BitBuffer) -> BitBuffer {
 
 /// Perform bit stuffing on given bits.
 ///
-/// __Parameters:__
+/// # Parameters
 /// * `input`: The bits stuff.
 ///
 /// __Returns:__ The stuffed bits.
@@ -56,7 +58,7 @@ pub fn stuff(input: &BitBuffer) -> BitBuffer {
 
 /// Perform bit destuffing on given bits.
 ///
-/// __Parameters:__
+/// # Parameters
 /// * `input`: The bits destuff.
 ///
 /// __Returns:__ The destuffed bits or an appropriate error.
@@ -66,7 +68,7 @@ pub fn destuff(input: &BitBuffer) -> Result<BitBuffer, BitError> {
 
 /// Encode data so it can be safely send over the radio.
 ///
-/// __Parameters:__
+/// # Parameters
 /// * `payload`: The data to encode.
 ///
 /// __Returns:__ Encoded data ready to send over the radio.
@@ -76,7 +78,7 @@ pub fn encode(payload: &[u8]) -> BitBuffer {
 
 /// Decode message received by radio so the data contained in it can be retrieved.
 ///
-/// __Parameters:__
+/// # Parameters
 /// * `air`: The received message.
 ///
 /// __Returns:__ Decoded data for further examination or an error if the message could not be decoded.
@@ -96,7 +98,7 @@ pub fn decode(air: &BitBuffer) -> Result<Vec<u8>, BitError> {
 /// If while destuffing 5 consecutive ones without following zero are found then returned vector is empty.
 /// This is not ideal and should be changed in the future.
 ///
-/// __Parameters:__
+/// # Parameters
 /// * `air`: The received message.
 ///
 /// __Returns:__ Decoded data for further examination and an error if the message could not be decoded.
@@ -114,7 +116,7 @@ pub fn decode_lossy(air: &BitBuffer) -> (Vec<u8>, Option<BitError>) {
 
 /// Decode message received by radio with unknown sate so the data contained in it can be retrieved.
 ///
-/// __Parameters:__
+/// # Parameters
 /// * `air`: The received part of a message.
 ///
 /// __Returns:__ As like decode_lossy. Decoded data for further examination and an error if the message could not be decoded.

@@ -26,7 +26,7 @@ impl Encoder {
 	/// Serialize bits from buffer into Non-return-to-zero inverted code.
 	/// Zero is coded by difference in levels and one by constant state.
 	///
-	/// __Parameters:__
+	/// # Parameters
 	/// * `bits`: The bit buffer to serialize.
 	///
 	/// __Returns:__ The buffer with bits coded by NRZI.
@@ -49,7 +49,7 @@ impl Decoder {
 	/// Deserialize bits from buffer coded with Non-return-to-zero inverted.
 	/// Difference in levels is decoded to zero and constant state into one.
 	///
-	/// __Parameters:__
+	/// # Parameters
 	/// * `bits`: The bit buffer to deserialize.
 	///
 	/// __Returns:__ The buffer containing decoded data.
