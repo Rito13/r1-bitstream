@@ -121,7 +121,7 @@ pub fn decode_lossy(air: &BitBuffer) -> (Vec<u8>, Option<BitError>) {
 pub fn decode_from_middle(air: &BitBuffer) -> (Vec<u8>, Option<BitError>) {
 	let descrambled = descramble(air);
 	let mut iter = descrambled.into_iter();
-	iter.nth(17); // Synchronise.
+	iter.nth(16); // Synchronise.
 	let nrzi_decoded = nrzi::Decoder::new().decode(iter);
 	let mut iter = nrzi_decoded.into_iter();
 	iter.next(); // First bit may be incorrect as we don't know the previous state.

@@ -125,7 +125,7 @@ impl Iterator for BitBufferIterator<'_> {
 	/// __Returns:__ The value of currently the nth bit.
 	fn nth(&mut self, n: usize) -> Option<Self::Item> {
 		self.index += n;
-		self.bit_buffer.bit(self.index - 1)
+		self.next()
 	}
 }
 
