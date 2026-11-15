@@ -110,6 +110,7 @@ fn receive() {
 Given a bit_buffer with first bit starting from the middle of a message:
 ```rust
 use r1_bitstream::bitbuf::BitBuffer;
+use r1_bitstream::biterror::BitError;
 use r1_bitstream::pipeline::decode_from_middle;
 
 fn receive(bit_buffer: BitBuffer) {
